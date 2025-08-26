@@ -11,8 +11,15 @@
       "src": "src/kernel/kernel.asm",
       "bin": "build/kernel/kernel.bin",
       "sector": 2,
-      "sectors": 6,
+      "sectors": 4,
       "mem": "0x1000:0x0000"
+    },
+    "dummymodule": {
+      "src": "src/modules/dummy.asm",
+      "bin": "build/modules/dummy.bin",
+      "sector": 10,
+      "sectors": 1,
+      "mem": "0x1000:0x1000"
     }
   }
 }

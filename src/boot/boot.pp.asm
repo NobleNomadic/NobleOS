@@ -29,7 +29,7 @@ bootEntry:
   mov ax, 0x1000
   mov es, ax
   mov ah, 0x02
-  mov al, 6
+  mov al, 4
   int 0x13
   ; JUMP_kernel
   jmp 0x1000:0x0000
