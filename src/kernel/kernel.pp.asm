@@ -19,11 +19,11 @@ kernelEntry:
   mov ah, 0x01    ; syscall number = 1 (load module)
   mov cx, 10      ; sector
   mov dl, 0x00    ; drive
-  mov dh, 3       ; slot 1
+  mov dh, 1       ; slot 1
   int 0x60        ; handler runs immediately
 
   ; Call the module code
-  call 0x1000:0x3000
+  call 0x1000:0x1000
 
   ; Hang
   jmp $
@@ -41,7 +41,7 @@ int60Handler:
   ; No valid syscall, end
   jmp .done
 
-.loadModule
+.loadModule:
   ; Use int 0x13 to load from the disk
   mov ax, 0x1000
   mov es, ax

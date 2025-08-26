@@ -41,7 +41,7 @@ int60Handler:
   ; No valid syscall, end
   jmp .done
 
-.loadModule
+.loadModule:
   ; Use int 0x13 to load from the disk
   mov ax, 0x1000
   mov es, ax
