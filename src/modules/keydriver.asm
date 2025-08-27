@@ -1,15 +1,15 @@
-; keydriver.asm - Keybord driver for getting input
+; keydriver.asm - Keyboard driver for getting input
 [org 0x1000] ; Hardware drivers load at offset 1000
 [bits 16]
 
 %define STREND 0x0D, 0x0A, 0x00
 
-; If the module entry function runs, then install interrupt and return
+; ==== DRIVER ENTRY ====
 driverEntry:
   pusha
   push ds
 
-  ; Setup segment
+  ; Setup segment for driver
   mov ax, 0x1000
   mov ds, ax
   mov es, ax
@@ -26,29 +26,30 @@ driverEntry:
   retf
 
 
-; ==== INTERRUPT CATCH ====
-; Code is run on int 0x61 to call current hardware driver
+; ==== INTERRUPT HANDLER ====
 int0x61Handler:
   pusha
   sti
 
-  ; Check for get string of input syscall
-  cmp ah, 0x01
+  cmp ah, 0x01        ; syscall: read line
   je .getInput
 
-  ; No valid syscall, jump straight to finish
   jmp .done
 
 .getInput:
-  mov ah, 0x0E
-  mov al, "L"
-  int 0x10
+  ; Inputs:
+  ; DS:SI = pointer to buffer
+  ; BX    = max length (not including CR/LF/NUL terminator)
+  ; AH    = 0x01
+  pusha
+  call getInput
+  popa
   jmp .done
 
 .done:
-  ; Return register state and return to caller
   popa
   iret
+
 
 ; ==== INSTALL INTERRUPTS ====
 installInterrupts:
@@ -64,26 +65,98 @@ installInterrupts:
   pop ax
   ret
 
-; ==== UTILITY FUNCTIONS ====
-; Print string currently in SI
+
+; ==== UTILITY: PRINT STRING ====
 printString:
-  push ax        ; Preserve registers
+  push ax
   push si
 .printLoop:
-  lodsb          ; Load next byte from SI into AL
-  or al, al      ; Check for null terminator
-  jz .done       ; Finish if null
-  mov ah, 0x0E   ; Setup BIOS tty print
-  int 0x10       ; Call BIOS interrupt
-  jmp .printLoop ; Continue loop
+  lodsb
+  or al, al
+  jz .done
+  mov ah, 0x0E
+  int 0x10
+  jmp .printLoop
 .done:
-  ; Restore registers and return
   pop si
   pop ax
   ret
 
-; DATA SECTION
+
+; ==== GET INPUT ====
+getInput:
+  ; DS:SI = buffer pointer
+  ; BX    = max length
+  ; On return: buffer = text + CR LF NUL
+
+  push ax
+  push di
+  push cx
+
+  mov di, si      ; DI = buffer write ptr
+  xor cx, cx      ; CX = count so far
+
+.inputLoop:
+  mov ah, 0x00    ; BIOS wait for key
+  int 0x16        ; AL = char
+  cmp al, 0x0D    ; Enter?
+  je .doneInput
+
+  cmp al, 0x08    ; Backspace?
+  jne .notBackspace
+
+  cmp cx, 0       ; if nothing typed, ignore
+  je .inputLoop
+  dec cx
+  dec di
+
+  ; erase char visually
+  mov ah, 0x0E
+  mov al, 0x08
+  int 0x10
+  mov al, ' '
+  int 0x10
+  mov al, 0x08
+  int 0x10
+  jmp .inputLoop
+
+.notBackspace:
+  cmp cx, bx      ; max length reached?
+  jae .inputLoop  ; ignore extra
+  mov [di], al    ; store char
+  inc di
+  inc cx
+
+  ; echo char
+  mov ah, 0x0E
+  int 0x10
+  jmp .inputLoop
+
+.doneInput:
+  ; append CR, LF, NUL
+  mov byte [di], 0x0D
+  inc di
+  mov byte [di], 0x0A
+  inc di
+  mov byte [di], 0x00
+  inc di
+
+  ; newline visually
+  mov ah, 0x0E
+  mov al, 0x0D
+  int 0x10
+  mov al, 0x0A
+  int 0x10
+
+  pop cx
+  pop di
+  pop ax
+  ret
+
+
+; ==== DATA ====
 keyboardDriverEntryMessage db "[+] Keyboard driver setup", STREND
 
 ; Pad to 1 sector
 times 512 - ($ - $$) db 0
+

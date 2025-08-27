@@ -16,16 +16,6 @@ kernelEntry:
   ; Run interrupt installer to make int 0x60 work
   call installInterrupts
 
-  ; Load keyboard driver module
-  mov dh, 0x01
-  mov cx, 10
-  mov ah, 0x01
-  int 0x60
-  call 0x1000:0x1000
-
-  mov ah, 0x01
-  int 0x61
-
   ; Hang
   jmp $
 
@@ -64,11 +54,33 @@ int60Handler:
   mov bx, 0x3000
 
 .callBIOS:
+  push bx ; Save the offset
   mov ah, 0x02    ; BIOS read sectors
   mov al, 1
   mov dh, 0
   mov dl, 0x00
   int 0x13
+
+  ; Automatically call the loaded module
+  pop bx
+  cmp bx, 0x1000
+  je .slot1Call
+
+  cmp bx, 0x2000
+  je .slot1Call
+
+  cmp bx, 0x3000
+  je .slot3Call
+
+.slot1Call:
+  call 0x1000:0x1000
+  jmp .done
+.slot2Call:
+  call 0x1000:0x2000
+  jmp .done
+.slot3Call:
+  call 0x1000:0x3000
+  jmp .done
 
 .done:
   cli
