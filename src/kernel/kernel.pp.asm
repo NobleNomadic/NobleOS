@@ -16,6 +16,16 @@ kernelEntry:
   ; Run interrupt installer to make int 0x60 work
   call installInterrupts
 
+  ; Load keyboard driver module
+  mov dh, 0x01
+  mov cx, 10
+  mov ah, 0x01
+  int 0x60
+  call 0x1000:0x1000
+
+  mov ah, 0x01
+  int 0x61
+
   ; Hang
   jmp $
 
@@ -57,6 +67,7 @@ int60Handler:
   mov ah, 0x02    ; BIOS read sectors
   mov al, 1
   mov dh, 0
+  mov dl, 0x00
   int 0x13
 
 .done:
@@ -66,12 +77,16 @@ int60Handler:
 
 ; ==== Install Interrupts ====
 installInterrupts:
+  push ax
+  push ds
   cli
   xor ax, ax
   mov ds, ax
   mov word [0x60*4], int60Handler
   mov word [0x60*4 + 2], cs
+  pop ds
   sti
+  pop ax
   ret
 
 ; ==== Utility Functions ====

@@ -40,6 +40,9 @@ int0x61Handler:
   jmp .done
 
 .getInput:
+  mov ah, 0x0E
+  mov al, "L"
+  int 0x10
   jmp .done
 
 .done:
@@ -49,12 +52,16 @@ int0x61Handler:
 
 ; ==== INSTALL INTERRUPTS ====
 installInterrupts:
-  cli 
+  push ax
+  push ds
+  cli
   xor ax, ax
   mov ds, ax
-  mov word [0x60*4], int0x61Handler
-  mov word [0x60*4 + 2], cs
+  mov word [0x61*4], int0x61Handler
+  mov word [0x61*4 + 2], cs
+  pop ds
   sti
+  pop ax
   ret
 
 ; ==== UTILITY FUNCTIONS ====

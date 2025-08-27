@@ -18,7 +18,8 @@
       "src": "src/modules/keydriver.asm",
       "bin": "build/modules/keydriver.bin",
       "sector": 10,
-      "sectors": 1
+      "sectors": 1,
+      "mem": "0x1000:0x1000"
     }
   }
 }
