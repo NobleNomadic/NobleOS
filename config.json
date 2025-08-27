@@ -14,12 +14,11 @@
       "sectors": 4,
       "mem": "0x1000:0x0000"
     },
-    "dummymodule": {
-      "src": "src/modules/dummy.asm",
-      "bin": "build/modules/dummy.bin",
+    "keydrivermodule": {
+      "src": "src/modules/keydriver.asm",
+      "bin": "build/modules/keydriver.bin",
       "sector": 10,
-      "sectors": 1,
-      "mem": "0x1000:0x1000"
+      "sectors": 1
     }
   }
 }

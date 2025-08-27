@@ -13,17 +13,8 @@ kernelEntry:
   mov si, kernelEntryMessage
   call printString
 
+  ; Run interrupt installer to make int 0x60 work
   call installInterrupts
-
-  ; Call dummy module via direct syscall
-  mov ah, 0x01    ; syscall number = 1 (load module)
-  mov cx, 10      ; sector
-  mov dl, 0x00    ; drive
-  mov dh, 1       ; slot 1
-  int 0x60        ; handler runs immediately
-
-  ; Call the module code
-  call 0x1000:0x1000
 
   ; Hang
   jmp $
@@ -85,16 +76,17 @@ installInterrupts:
 
 ; ==== Utility Functions ====
 printString:
-  push ax
+  push ax         ; Preserve registerss
   push si
 .printLoop:
-  lodsb
-  or al, al
-  jz .donePS
-  mov ah, 0x0E
-  int 0x10
-  jmp .printLoop
-.donePS:
+  lodsb           ; Load next byte into AL
+  or al, al       ; Check for null terminator
+  jz .done        ; Finish if null
+  mov ah, 0x0E    ; Setup BIOS tty print
+  int 0x10        ; Call BIOS
+  jmp .printLoop  ; Continue loop
+.done:
+  ; Return register state and return
   pop si
   pop ax
   ret
