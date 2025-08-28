@@ -16,16 +16,24 @@ kernelEntry:
   ; Run interrupt installer to make int 0x60 work
   call installInterrupts
 
+  ; Load filesystem module into memory
   mov cx, 11
   mov dh, 0x02
   mov ah, 0x01
   int 0x60
 
+  ; Read file from filesystem
   mov ah, 0x01
   mov cx, 21
   int 0x62
 
-  call 0x2000:0x2000
+  ; Call file (skip 4 byte filename)
+  call 0x2000:0x2004
+
+  ; Write file to disk
+  mov ah, 0x02
+  mov cx, 20
+  int 0x62
 
   ; Hang
   jmp $

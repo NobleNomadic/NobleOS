@@ -45,6 +45,8 @@ int0x62Handler:
   jmp .done
 
 .writeFile:
+
+  call writeFile
   jmp .done
 
 .done:
@@ -124,17 +126,36 @@ readFile:
 .done:
   ret
 
+; Copy the data in the file buffer onto the disk
+; CX = Sector to write to
+writeFile:
+  ; Copy data in 0x2000:0x2000 to disk
+  mov ax, 0x2000 ; Segment
+  mov es, ax
+  mov bx, 0x2000 ; Offset
+  ; Disk args
+  mov ah, 0x03   ; BIOS write sectors
+  mov dh, 0      ; Head 0
+  mov dl, 0x00   ; Floppy drive 0
+  mov al, 1      ; 1 sector
+
+  ; Call interrupt
+  int 0x13
+  ret
+
+; Print String stored in SI
 printString:
-  push ax
+  push ax         ; Perserve registers
   push si
 .printLoop:
-  lodsb
-  or al, al
-  jz .done
-  mov ah, 0x0E
-  int 0x10
-  jmp .printLoop
+  lodsb           ; Load next byte into AL
+  or al, al       ; Check for null terminator
+  jz .done        ; Finish if null
+  mov ah, 0x0E    ; Setup BIOS tty print
+  int 0x10        ; Call interrupt
+  jmp .printLoop  ; Continue loop
 .done:
+  ; Return register state and return
   pop si
   pop ax
   ret
@@ -143,7 +164,7 @@ printString:
 filesystemDriverEntryMessage db "[+] Filesystem loaded", STREND
 
 ; Reserve buffer for current loaded filename
-currentFilename times 4 db 0
+currentFilename times 5 db 0 ; 4 Bytes + null
 
 ; Pad to 1 sector
 times 512 - ($ - $$) db 0
