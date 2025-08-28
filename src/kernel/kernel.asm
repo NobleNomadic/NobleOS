@@ -16,11 +16,18 @@ kernelEntry:
   ; Run interrupt installer to make int 0x60 work
   call installInterrupts
 
+  mov cx, 11
+  mov dh, 0x01
+  mov ah, 0x01
+  int 0x60
+
+  int 0x62
+
   ; Hang
   jmp $
 
 ; ==== Interrupt Handler - Run After int 0x60 ====
-int60Handler:
+int0x60Handler:
   pusha
   ; safe handler: enable interrupts if BIOS calls are needed
   sti
@@ -82,6 +89,7 @@ int60Handler:
   call 0x1000:0x3000
   jmp .done
 
+; Standard return point for interrupts
 .done:
   cli
   popa
@@ -94,7 +102,7 @@ installInterrupts:
   cli
   xor ax, ax
   mov ds, ax
-  mov word [0x60*4], int60Handler
+  mov word [0x60*4], int0x60Handler
   mov word [0x60*4 + 2], cs
   pop ds
   sti
