@@ -17,11 +17,15 @@ kernelEntry:
   call installInterrupts
 
   mov cx, 11
-  mov dh, 0x01
+  mov dh, 0x02
   mov ah, 0x01
   int 0x60
 
+  mov ah, 0x01
+  mov cx, 21
   int 0x62
+
+  call 0x2000:0x2000
 
   ; Hang
   jmp $

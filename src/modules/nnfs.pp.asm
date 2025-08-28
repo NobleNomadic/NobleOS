@@ -96,17 +96,30 @@ readFile:
   cmp cx, 20
   je .done
 
-  mov si, 0x2000        ; offset = 0x2000
-  mov ax, 0x2000        ; segment = 0x2000
-  mov es, ax            ; ES = source segment
+  push ds
+  push si  
+  push di
+  push cx
 
-  ; Set destination segment and offset (currentFilename)
-  mov ax, 0x1000        ; your data segment
-  mov ds, ax
-  lea di, [currentFilename]
-  
-  mov cx, 4             ; copy 4 bytes
-  rep movsb
+  ; Set source: where the file was loaded
+  mov ax, 0x2000          ; Source segment
+  mov ds, ax              ; DS points to segment where file is loaded  
+  mov si, 0x2000          ; SI points to offset 0x2000 (start of filename)
+
+  ; Set destination: our filename buffer  
+  mov ax, 0x1000          ; Our data segment
+  mov es, ax              ; ES points to our data segment
+  mov di, currentFilename ; DI points to our filename buffer
+
+  ; Copy the 4 filename bytes
+  mov cx, 4               ; Copy 4 bytes
+  rep movsb               ; Copy from DS:SI to ES:DI
+
+  ; Restore registers
+  pop cx
+  pop di  
+  pop si
+  pop ds
 
 .done:
   ret

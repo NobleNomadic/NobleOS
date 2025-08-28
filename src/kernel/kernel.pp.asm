@@ -17,9 +17,15 @@ kernelEntry:
   call installInterrupts
 
   mov cx, 11
-  mov dh, 1
+  mov dh, 0x02
   mov ah, 0x01
   int 0x60
+
+  mov ah, 0x01
+  mov cx, 21
+  int 0x62
+
+  call 0x2000:0x2000
 
   ; Hang
   jmp $
@@ -54,9 +60,6 @@ int0x60Handler:
   jmp .callBIOS
 .slot2:
   mov bx, 0x2000
-  mov ah, 0x0E
-  mov al, "?"
-  int 0x10
   jmp .callBIOS
 .slot3:
   mov bx, 0x3000
