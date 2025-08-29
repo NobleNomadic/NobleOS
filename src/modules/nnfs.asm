@@ -37,6 +37,9 @@ int0x62Handler:
   cmp ah, 0x02 ; Syscall 2 write file
   je .writeFile
 
+  cmp ah, 0x03 ; Sysall 3 print current filename
+  je .printFilename
+
   ; No valid syscall, exit
   jmp .done
 
@@ -45,8 +48,11 @@ int0x62Handler:
   jmp .done
 
 .writeFile:
-
   call writeFile
+  jmp .done
+
+.printFilename:
+  call printFilename
   jmp .done
 
 .done:
@@ -141,6 +147,12 @@ writeFile:
 
   ; Call interrupt
   int 0x13
+  ret
+
+; Print the current filename
+printFilename:
+  mov si, currentFilename
+  call printString
   ret
 
 ; Print String stored in SI

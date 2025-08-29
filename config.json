@@ -27,13 +27,6 @@
       "sector": 11,
       "sectors": 1,
       "mem": "0x1000:0x2000"
-    },
-    "dummyfile": {
-      "src": "src/dummyfile.asm",
-      "bin": "build/dummyfile.bin",
-      "sector": 21,
-      "sectors": 1,
-      "mem": "0x2000:0x2000"
     }
   }
 }
