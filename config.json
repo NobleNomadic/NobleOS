@@ -14,19 +14,19 @@
       "sectors": 4,
       "mem": "0x1000:0x0000"
     },
-    "keydrivermodule": {
-      "src": "src/modules/keydriver.asm",
-      "bin": "build/modules/keydriver.bin",
-      "sector": 10,
-      "sectors": 1,
-      "mem": "0x1000:0x1000"
-    },
     "nnfsmodule": {
       "src": "src/modules/nnfs.asm",
       "bin": "build/modules/nnfs.bin",
-      "sector": 11,
+      "sector": 10,
       "sectors": 1,
       "mem": "0x1000:0x2000"
+    },
+    "keydrivermodule": {
+      "src": "src/modules/keydriver.asm",
+      "bin": "build/modules/keydriver.bin",
+      "sector": 11,
+      "sectors": 1,
+      "mem": "0x1000:0x1000"
     }
   }
 }

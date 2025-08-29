@@ -16,6 +16,12 @@ kernelEntry:
   ; Run interrupt installer to make int 0x60 work
   call installInterrupts
 
+  ; Load filesystem into slot 2
+  mov dh, 0x02 ; Slot 2
+  mov cx, 10   ; Read from sector 10
+  mov ah, 0x01 ; Syscall 1
+  int 0x61
+
   ; Hang
   jmp $
 

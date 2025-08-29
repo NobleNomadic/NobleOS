@@ -17,9 +17,16 @@ fsEntry:
   ; Install interrupts
   call installInterrupts
 
+  ; Print message if AL = 0x01
+  cmp al, 0x01
+  je .printMessage
+  jmp .finish
+
+.printMessage:
   mov si, filesystemDriverEntryMessage
   call printString
 
+.finish:
   ; Return to caller
   pop ds
   popa
