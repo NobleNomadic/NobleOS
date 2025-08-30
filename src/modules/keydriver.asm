@@ -155,7 +155,7 @@ getInput:
 
 
 ; ==== DATA ====
-keyboardDriverEntryMessage db "[+] Keyboard driver setup", STREND
+keyboardDriverEntryMessage db "[+] Keyboard driver loaded", STREND
 
 ; Pad to 1 sector
 times 512 - ($ - $$) db 0

@@ -17,17 +17,9 @@ driverEntry:
   ; Install interrupts
   call installInterrupts
 
-  ; Print the entry message if not in quiet mode
-  cmp al, 0x01
-  je .printMessage ; Print message if compare success
-  jmp .finish      ; Finish if not
-
-.printMessage:
   mov si, keyboardDriverEntryMessage
   call printString
-  jmp .finish
 
-.finish:
   ; Return across segment to caller
   pop ds
   popa
@@ -163,7 +155,7 @@ getInput:
 
 
 ; ==== DATA ====
-keyboardDriverEntryMessage db "[+] Keyboard driver setup", STREND
+keyboardDriverEntryMessage db "[+] Keyboard driver loaded", STREND
 
 ; Pad to 1 sector
 times 512 - ($ - $$) db 0

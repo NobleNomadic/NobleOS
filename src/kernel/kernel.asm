@@ -22,8 +22,9 @@ kernelEntry:
   mov ah, 0x01 ; Syscall 1
   int 0x60
 
-  ; Hang
-  jmp $
+  ; Give control to shell
+  ;LOAD_shellprogram
+  ;JUMP_shellprogram
 
 ; ==== Interrupt Handler - Run After int 0x60 ====
 int0x60Handler:

@@ -27,6 +27,13 @@
       "sector": 11,
       "sectors": 1,
       "mem": "0x1000:0x1000"
+    },
+    "shellprogram": {
+      "src": "src/programs/shell.asm",
+      "bin": "build/programs/shell.bin",
+      "sector": 20,
+      "sectors": 1,
+      "mem": "0x2000:0x0000"
     }
   }
 }

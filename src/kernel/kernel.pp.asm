@@ -20,10 +20,21 @@ kernelEntry:
   mov dh, 0x02 ; Slot 2
   mov cx, 10   ; Read from sector 10
   mov ah, 0x01 ; Syscall 1
-  int 0x61
+  int 0x60
 
-  ; Hang
-  jmp $
+  ; Give control to shell
+  ; LOAD_shellprogram
+  mov cx, 20
+  mov dh, 0
+  mov dl, 0x00
+  mov bx, 0x0000
+  mov ax, 0x2000
+  mov es, ax
+  mov ah, 0x02
+  mov al, 1
+  int 0x13
+  ; JUMP_shellprogram
+  jmp 0x2000:0x0000
 
 ; ==== Interrupt Handler - Run After int 0x60 ====
 int0x60Handler:
