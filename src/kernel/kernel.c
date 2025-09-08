@@ -12,18 +12,15 @@ void _start(void) {
 // ==== KERNEL MAIN ====
 void kernelMain(void) {
   terminalInitialize();
-  terminalSetColor(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
+  terminalSetColor(VGA_COLOR_LIGHT_GRAY, VGA_COLOR_BLACK);
   terminalWrite("[*] KERNEL BOOTED\n");
 
-  // Get a line of input
-  char line[128];
-  terminalWrite("ENTER TEXT\n$ ");
-  keyboardReadLine(line, sizeof(line));
-
-  // Echo back
-  terminalWrite("INPUT: ");
-  terminalWrite(line);
-  terminalWrite("\n");
+  while (1) {
+    // Get a line of input
+    char line[128];
+    terminalWrite("$ ");
+    keyboardReadLine(line, sizeof(line));
+  }
 
   while (1) {}
 }

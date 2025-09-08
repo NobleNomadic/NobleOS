@@ -21,14 +21,6 @@ static inline unsigned char inb(unsigned short port) {
   return ret;
 }
 
-// Multiboot header
-__attribute__((section(".multiboot"), used))
-static const unsigned int multiboot_header[] = {
-  0x1BADB002,           /* magic */
-  0x00000000,           /* flags */
-  -(0x1BADB002 + 0x00000000)
-};
-
 /* Entry point symbol used by linker/startup code. Keep as C symbol. */
 void _start(void);
 

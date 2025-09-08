@@ -1,19 +1,19 @@
+/* Simple kernel linker script for 0x10000 load address */
 ENTRY(_start)
 
-SECTIONS {
-  . = 1M;
-
-  .text :
-  {
-    *(.multiboot)
-    *(.text*)
+SECTIONS
+{
+  . = 0x10000;
+  
+  .text : {
+    *(.text)
   }
-
-  .rodata : { *(.rodata*) }
-  .data : { *(.data*) }
+  
+  .data : {
+    *(.data)
+  }
+  
   .bss : {
-    *(.bss*)
-    *(COMMON)
+    *(.bss)
   }
 }
-
