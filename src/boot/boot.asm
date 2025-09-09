@@ -47,7 +47,7 @@ pmStart:
   jmp 0x10000
 
 ; ----------------------------------------
-; ATA CHS Disk Read Function (32-bit mode)
+; ATA CHS Disk Read Function - 32 bit version of the code found at https://wiki.osdev.org/ATA_read/write_sectors
 ; Reads 'ch' sectors from CHS address in EBX into buffer at EDI
 ; CHS format: EBX = [Cylinder:16][Head:8][Sector:8]
 ; ----------------------------------------

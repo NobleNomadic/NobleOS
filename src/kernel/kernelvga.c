@@ -42,22 +42,35 @@ void terminalSetColor(uint8_t fg, uint8_t bg) {
   terminalColor = vgaColor(fg, bg);
 }
 
+// Clear VGA screen by printing a blank character to each position
+void terminalClear(void) {
+  // Create data to print to VGA
+  const uint16_t entry = vgaEntry(' ', terminalColor);
+
+  // Print a blank character to each character location on the terminal
+  for (size_t y = 0; y < VGA_HEIGHT; y++) {
+    for (size_t x = 0; x < VGA_WIDTH; x++) {
+      VGA_MEMORY[y * VGA_WIDTH + x] = entry;
+    }
+  }
+}
+
 /* Initialize terminal buffer */
 void terminalInitialize(void) {
   terminalRow = 0;
   terminalColumn = 0;
+  // Set terminal color
   terminalColor = vgaColor(VGA_COLOR_LIGHT_GRAY, VGA_COLOR_BLACK);
-  const uint16_t entry = vgaEntry(' ', terminalColor);
-  for (size_t y = 0; y < VGA_HEIGHT; ++y) {
-    for (size_t x = 0; x < VGA_WIDTH; ++x) {
-      VGA_MEMORY[y * VGA_WIDTH + x] = entry;
-    }
-  }
+
+  terminalClear();
+
+  // Reset cursor position
   terminalSetCursor(0, 0);
 }
 
 /* Put a character on screen, handling newline and scrolling */
 void terminalPutChar(char c) {
+  // Check and handle newlines
   if (c == '\n') {
     terminalColumn = 0;
     if (++terminalRow >= VGA_HEIGHT) {
@@ -68,6 +81,7 @@ void terminalPutChar(char c) {
     return;
   }
 
+  // Calculate the index to put charater at
   const size_t index = terminalRow * VGA_WIDTH + terminalColumn;
   VGA_MEMORY[index] = vgaEntry((unsigned char)c, terminalColor);
 
@@ -88,4 +102,3 @@ void terminalWrite(const char* str) {
     terminalPutChar(*str++);
   }
 }
-

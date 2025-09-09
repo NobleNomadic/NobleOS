@@ -9,9 +9,10 @@ mkdir -p build
 i386-elf-gcc -ffreestanding -m32 -c src/kernel/kernel.c -o build/kernel.o
 i386-elf-gcc -ffreestanding -m32 -c src/kernel/kernelvga.c -o build/kernelvga.o
 i386-elf-gcc -ffreestanding -m32 -c src/kernel/kernelkeyboard.c -o build/kernelkeyboard.o
+i386-elf-gcc -ffreestanding -m32 -c src/kernel/kerneldisk.c -o build/kerneldisk.o
 
 # Link them together (linker script should place code at 0x00100000)
-i386-elf-ld -m elf_i386 build/kernel.o build/kernelvga.o build/kernelkeyboard.o -T linker/kernel.ld -o build/kernel.elf
+i386-elf-ld -m elf_i386 build/kernel.o build/kernelvga.o build/kernelkeyboard.o build/kerneldisk.o -T linker/kernel.ld -o build/kernel.elf
 
 # Convert ELF to flat binary. Kernel must be linked with virtual address 0x00100000.
 i386-elf-objcopy -O binary build/kernel.elf build/kernel.bin

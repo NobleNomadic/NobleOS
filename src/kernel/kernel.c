@@ -2,6 +2,7 @@
 #include "common.h"
 #include "kernelvga.h"      // high-level terminal API
 #include "kernelkeyboard.h" // basic keyboard driver
+#include "kerneldisk.h"     // Sector loading driver
 
 /* Linker/entry: jump to kernelMain.
    Keep this symbol simple so the linker script can point _start -> this. */
@@ -11,10 +12,14 @@ void _start(void) {
 
 // ==== KERNEL MAIN ====
 void kernelMain(void) {
+  // Setup VGA terminal
   terminalInitialize();
+  terminalClear();
   terminalSetColor(VGA_COLOR_LIGHT_GRAY, VGA_COLOR_BLACK);
+
   terminalWrite("[*] KERNEL BOOTED\n");
 
+  // Recovery shell
   while (1) {
     // Get a line of input
     char line[128];

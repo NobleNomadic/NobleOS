@@ -47,6 +47,7 @@ static inline uint16_t vgaEntry(unsigned char uc, uint8_t color) {
 void terminalInitialize(void);
 void terminalPutChar(char c);
 void terminalWrite(const char* str);
+void terminalClear(void);
 
 /* Cursor and color control */
 void terminalSetCursor(size_t row, size_t col);
