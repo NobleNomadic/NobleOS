@@ -13,15 +13,18 @@ void _start(void) {
 // ==== KERNEL MAIN ====
 void kernelMain(void) {
   terminalInitialize();
-  terminalClear();
-  terminalSetColor(VGA_COLOR_LIGHT_GRAY, VGA_COLOR_BLACK);
 
   terminalWrite("[*] KERNEL BOOTED\n");
 
   while (1) {
     char line[128];
-    terminalWrite("$ ");
+    terminalWrite("# ");
     keyboardReadLine(line, sizeof(line));
+
+    char* loadAddress = (char*)0x20000;
+    kernelReadSectors(20, 1, loadAddress);
+    void (*loadedCode)(void) = (void(*)(void))0x20000;
+    loadedCode();
   }
 }
 

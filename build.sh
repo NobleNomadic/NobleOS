@@ -26,10 +26,12 @@ compileAsm() {
 # Define linker configurations here: map name -> linker script and flags
 declare -A linker_scripts=(
   [kernel]="linker/kernel.ld"
+  [module]="linker/module.ld"
 )
 
 declare -A linker_flags=(
   [kernel]="-m elf_i386"
+  [module]="-m elf_i386"
 )
 
 # Generic linker function accepting:
@@ -69,11 +71,14 @@ writeToDisk() {
 
   echo "DD [kernel.bin]"
   dd if=build/kernel.bin of=NobleOS.img conv=notrunc bs=512 seek=1 status=none
+
+  echo "DD [test.bin]"
+  dd if=build/test.bin of=NobleOS.img conv=notrunc bs=512 seek=20 status=none
 }
 
 run() {
   echo "QEMU [NobleOS.img]"
-  qemu-system-x86_64 -drive file=NobleOS.img,if=ide,format=raw -enable-kvm
+  qemu-system-x86_64 -drive file=NobleOS.img,if=ide,format=raw
 }
 
 # ==== MAIN SCRIPT ====
@@ -91,6 +96,11 @@ compileAsm src/boot/boot.asm build/boot.bin bin
 # Use modular linker for kernel
 linkFiles kernel build/kernel.elf build/kernel.o build/kernelvga.o build/kernelkeyboard.o build/kerneldisk.o build/kerneldisk_asm.o
 objcopyBinary build/kernel.elf build/kernel.bin
+
+# ---- TEST MODULE ----
+compileC src/modules/test.c build/test.o
+linkFiles module build/test.elf build/test.o
+objcopyBinary build/test.elf build/test.bin
 
 writeToDisk 40960
 
