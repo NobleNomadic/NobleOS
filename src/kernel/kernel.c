@@ -23,7 +23,5 @@ void kernelMain(void) {
     terminalWrite("$ ");
     keyboardReadLine(line, sizeof(line));
   }
-
-  while (1) {}
 }
 
