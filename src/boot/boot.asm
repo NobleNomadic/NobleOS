@@ -39,7 +39,7 @@ pmStart:
 
   ; Prepare CHS values and buffer address for ATA read
   mov ebx, 0x00000002      ; CHS: Cylinder 0, Head 0, Sector 2
-  mov ch, 20               ; Number of sectors to read
+  mov ch, 18               ; Number of sectors to read
   mov edi, 0x10000         ; Buffer address to load sectors into
   call ataChsDiskRead
 

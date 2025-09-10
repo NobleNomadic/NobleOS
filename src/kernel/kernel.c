@@ -12,16 +12,13 @@ void _start(void) {
 
 // ==== KERNEL MAIN ====
 void kernelMain(void) {
-  // Setup VGA terminal
   terminalInitialize();
   terminalClear();
   terminalSetColor(VGA_COLOR_LIGHT_GRAY, VGA_COLOR_BLACK);
 
   terminalWrite("[*] KERNEL BOOTED\n");
 
-  // Recovery shell
   while (1) {
-    // Get a line of input
     char line[128];
     terminalWrite("$ ");
     keyboardReadLine(line, sizeof(line));

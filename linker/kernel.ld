@@ -1,4 +1,4 @@
-/* Simple kernel linker script for 0x10000 load address */
+/* Simple linker script for 0x10000 load address */
 ENTRY(_start)
 
 SECTIONS

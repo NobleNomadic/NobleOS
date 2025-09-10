@@ -4,3 +4,6 @@
 ## Design
 NobleOS is designed to be a hybrid kernel of a monolith and microkernel. The main kernel binary has simple drivers built in for printing to the screen and reading from the disk, but the rest of the drivers are loaded as modules seperate from the kernel binary.
 
+Once the kernel is loaded, it then uses the built in disk reading driver to load in the main filesystem driver. This filesystem keeps track of all data on the disk using a FAT style system. Data is stored in sector 20 (end of the kernel on the disk) to keep track of file metadata and where they are stored on the disk.
+
+Additional kernel modules and userspace is setup by loading files from this system into memory.

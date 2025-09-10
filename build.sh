@@ -1,37 +1,100 @@
 #!/bin/bash
 set -e
 
-rm -rf build
-rm -f NobleOS.img
-mkdir -p build
+clean() {
+  rm -rf build
+  rm -f NobleOS.img
+  mkdir -p build
+}
 
-# Compile kernel.c to 32-bit object file
-i386-elf-gcc -ffreestanding -m32 -c src/kernel/kernel.c -o build/kernel.o
-i386-elf-gcc -ffreestanding -m32 -c src/kernel/kernelvga.c -o build/kernelvga.o
-i386-elf-gcc -ffreestanding -m32 -c src/kernel/kernelkeyboard.c -o build/kernelkeyboard.o
-i386-elf-gcc -ffreestanding -m32 -c src/kernel/kerneldisk.c -o build/kerneldisk.o
+compileC() {
+  local src=$1
+  local out=$2
+  echo "CC [$src]"
+  i386-elf-gcc -ffreestanding -m32 -c "$src" -o "$out"
+}
 
-# Link them together (linker script should place code at 0x00100000)
-i386-elf-ld -m elf_i386 build/kernel.o build/kernelvga.o build/kernelkeyboard.o build/kerneldisk.o -T linker/kernel.ld -o build/kernel.elf
+compileAsm() {
+  local src=$1
+  local out=$2
+  local format=${3:-bin}
+  echo "AS [$src] with format $format"
+  nasm -f "$format" "$src" -o "$out"
+}
 
-# Convert ELF to flat binary. Kernel must be linked with virtual address 0x00100000.
-i386-elf-objcopy -O binary build/kernel.elf build/kernel.bin
+# Linker system
+# Define linker configurations here: map name -> linker script and flags
+declare -A linker_scripts=(
+  [kernel]="linker/kernel.ld"
+)
 
-# Compile bootloader (512 byte boot sector)
-nasm -f bin src/boot/boot.asm -o build/boot.bin
+declare -A linker_flags=(
+  [kernel]="-m elf_i386"
+)
 
-echo "[*] Compiled"
+# Generic linker function accepting:
+#   1) linker config name (e.g. "kernel")
+#   2) output file
+#   3+) input object files
+linkFiles() {
+  local config=$1
+  local output=$2
+  shift 2
+  local linker_script="${linker_scripts[$config]}"
+  local flags="${linker_flags[$config]}"
 
-# Create an empty disk image (10MB here, change if you want)
-dd if=/dev/zero of=NobleOS.img bs=512 count=$((1024*20))  # 10 MB
+  if [[ -z "$linker_script" ]]; then
+    echo "Error: Unknown linker config '$config'"
+    exit 1
+  fi
 
-# write the boot sector to sector 0
-dd if=build/boot.bin of=NobleOS.img conv=notrunc bs=512 count=1
+  echo "LD [$output] using config '$config' with script '$linker_script'"
+  i386-elf-ld $flags "$@" -T "$linker_script" -o "$output"
+}
 
-# write kernel binary starting at sector 1
-dd if=build/kernel.bin of=NobleOS.img conv=notrunc bs=512 seek=1
+objcopyBinary() {
+  local input=$1
+  local output=$2
+  echo "OB [$input -> $output]"
+  i386-elf-objcopy -O binary "$input" "$output"
+}
 
-echo "[*] Image generated"
+writeToDisk() {
+  local sizeSectors=${1:-40960}
+  echo "DD [NobleOS.img]"
+  dd if=/dev/zero of=NobleOS.img bs=512 count="$sizeSectors" status=none
 
-# Run in qemu using an emulated IDE disk
-qemu-system-x86_64 -drive file=NobleOS.img,if=ide,format=raw
+  echo "DD [boot.bin]"
+  dd if=build/boot.bin of=NobleOS.img conv=notrunc bs=512 count=1 status=none
+
+  echo "DD [kernel.bin]"
+  dd if=build/kernel.bin of=NobleOS.img conv=notrunc bs=512 seek=1 status=none
+}
+
+run() {
+  echo "QEMU [NobleOS.img]"
+  qemu-system-x86_64 -drive file=NobleOS.img,if=ide,format=raw -enable-kvm
+}
+
+# ==== MAIN SCRIPT ====
+clean
+
+# ---- KERNEL ----
+compileC src/kernel/kernel.c build/kernel.o
+compileC src/kernel/kernelvga.c build/kernelvga.o
+compileC src/kernel/kernelkeyboard.c build/kernelkeyboard.o
+compileC src/kernel/kerneldisk.c build/kerneldisk.o
+
+compileAsm src/kernel/kerneldisk.asm build/kerneldisk_asm.o elf32
+compileAsm src/boot/boot.asm build/boot.bin bin
+
+# Use modular linker for kernel
+linkFiles kernel build/kernel.elf build/kernel.o build/kernelvga.o build/kernelkeyboard.o build/kerneldisk.o build/kerneldisk_asm.o
+objcopyBinary build/kernel.elf build/kernel.bin
+
+writeToDisk 40960
+
+if [[ $1 == "run" ]]; then
+  run
+fi
+
