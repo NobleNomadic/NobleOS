@@ -1,5 +1,5 @@
 /* kernel.c - OS entry point */
-#include "common.h"
+#include "kernelcommon.h"
 #include "kernelvga.h"      // high-level terminal API
 #include "kernelkeyboard.h" // basic keyboard driver
 #include "kerneldisk.h"     // Sector loading driver
@@ -8,19 +8,14 @@
 #define MODULE_2_SECTOR 20
 #define MODULE_3_SECTOR 30
 #define MODULE_4_SECTOR 40
-#define MODULE_5_SECTOR 50
-#define MODULE_6_SECTOR 60
-#define MODULE_7_SECTOR 70
-#define MODULE_8_SECTOR 80
 
 #define MODULE_1_ENTRY 0x20000
 #define MODULE_2_ENTRY 0x30000
 #define MODULE_3_ENTRY 0x40000
 #define MODULE_4_ENTRY 0x50000
-#define MODULE_5_ENTRY 0x60000
-#define MODULE_6_ENTRY 0x70000
-#define MODULE_7_ENTRY 0x80000
-#define MODULE_8_ENTRY 0x90000
+
+// Module entry function type
+typedef void (*ModuleEntryFunction)(KernelStateMessage*);
 
 /* Linker/entry: jump to kernelMain.
    Keep this symbol simple so the linker script can point _start -> this. */
@@ -30,7 +25,7 @@ void _start(void) {
 
 // ==== MODULE LOADER ====
 // Load a module from disk into memory and return pointer to its entry function
-void (*loadModule(uint8_t moduleNumber))(void) {
+ModuleEntryFunction loadModule(uint8_t moduleNumber) {
   char* moduleLoadAddress = 0;
   uint8_t sector = 0;
 
@@ -46,18 +41,6 @@ void (*loadModule(uint8_t moduleNumber))(void) {
   } else if (moduleNumber == 4) {
     moduleLoadAddress = (char*)MODULE_4_ENTRY;
     sector = MODULE_4_SECTOR;
-  } else if (moduleNumber == 5) {
-    moduleLoadAddress = (char*)MODULE_5_ENTRY;
-    sector = MODULE_5_SECTOR;
-  } else if (moduleNumber == 6) {
-    moduleLoadAddress = (char*)MODULE_6_ENTRY;
-    sector = MODULE_6_SECTOR;
-  } else if (moduleNumber == 7) {
-    moduleLoadAddress = (char*)MODULE_7_ENTRY;
-    sector = MODULE_7_SECTOR;
-  } else if (moduleNumber == 8) {
-    moduleLoadAddress = (char*)MODULE_8_ENTRY;
-    sector = MODULE_8_SECTOR;
   } else {
     terminalWrite("[-] INVALID MODULE NUMBER\n");
     return 0; // Invalid module number
@@ -66,7 +49,7 @@ void (*loadModule(uint8_t moduleNumber))(void) {
   kernelReadSectors(sector, 10, moduleLoadAddress);
 
   // Return function pointer to entry
-  return (void(*)(void))moduleLoadAddress;
+  return (ModuleEntryFunction)moduleLoadAddress;
 }
 
 // ==== KERNEL MAIN ====
@@ -74,23 +57,36 @@ void kernelMain(void) {
   terminalInitialize();
   terminalWrite("[*] KERNEL LOADED\n");
 
-  // Load the first 3 modules into memory on boot
-  terminalWrite("[*] LOADING INITIAL MODULES\n");
+  terminalWrite("[*] LOADING INITIAL MODULES");
 
-  terminalWrite("[*] READING MODULE 1\n");
-  void (*module1Entry)(void) = loadModule(1);
+  ModuleEntryFunction module1Entry = loadModule(1);
+  terminalWrite(".");
+  ModuleEntryFunction module2Entry = loadModule(2);
+  terminalWrite(".");
+  ModuleEntryFunction module3Entry = loadModule(3);
+  terminalWrite(".");
+  ModuleEntryFunction module4Entry = loadModule(4);
+  terminalWrite(".\n");
 
-  terminalWrite("[*] READING MODULE 2\n");
-  void (*module2Entry)(void) = loadModule(2);
+  // Check if modules failed to load
+  if (!module1Entry || !module2Entry || !module3Entry || !module4Entry) {
+    terminalWrite("[-] ERROR: One or more modules failed to load.\n");
+    return;
+  }
 
-  terminalWrite("[*] READING MODULE 3\n");
-  void (*module3Entry)(void) = loadModule(3);
+  // Call init module
+  terminalWrite("[*] RUNNING INIT MODULE\n");
 
-  // ==== MAIN SHELL LOOP ====
+  // OS process loop
+  KernelStateMessage kernelState;
+
   while (1) {
-    char line[128];
-    terminalWrite("# ");
-    keyboardReadLine(line, sizeof(line));
+    // Run each module's main function
+    // Each module mutates the shared KernelStateMessage
+    module1Entry(&kernelState);
+    module2Entry(&kernelState);
+    module3Entry(&kernelState);
+    module4Entry(&kernelState);
   }
 }
 

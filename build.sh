@@ -2,6 +2,7 @@
 set -e
 
 clean() {
+  echo "RM [build]"
   rm -rf build
   rm -f NobleOS.img
   mkdir -p build
@@ -71,6 +72,19 @@ writeToDisk() {
 
   echo "DD [kernel.bin]"
   dd if=build/kernel.bin of=NobleOS.img conv=notrunc bs=512 seek=1 status=none
+
+  echo "DD [dummy.bin]"
+  dd if=build/dummy.bin of=NobleOS.img conv=notrunc bs=512 seek=9 status=none
+
+  echo "DD [dummy.bin]"
+  dd if=build/dummy.bin of=NobleOS.img conv=notrunc bs=512 seek=19 status=none
+
+  echo "DD [dummy.bin]"
+  dd if=build/dummy.bin of=NobleOS.img conv=notrunc bs=512 seek=29 status=none
+
+  echo "DD [dummy.bin]"
+  dd if=build/dummy.bin of=NobleOS.img conv=notrunc bs=512 seek=39 status=none
+
 }
 
 run() {
@@ -93,6 +107,11 @@ compileAsm src/boot/boot.asm build/boot.bin bin
 # Use modular linker for kernel
 linkFiles kernel build/kernel.elf build/kernel.o build/kernelvga.o build/kernelkeyboard.o build/kerneldisk.o build/kerneldisk_asm.o
 objcopyBinary build/kernel.elf build/kernel.bin
+
+# ---- MODULES ----
+compileC src/modules/dummy.c build/dummy.o
+linkFiles flat build/dummy.elf build/dummy.o
+objcopyBinary build/dummy.elf build/dummy.bin
 
 writeToDisk 40960
 

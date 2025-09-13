@@ -1,4 +1,4 @@
-#include "common.h"
+#include "kernelcommon.h"
 #include "kernelkeyboard.h"
 #include "kernelvga.h"
 

@@ -2,7 +2,7 @@
 #ifndef KERNELDISK_H
 #define KERNELDISK_H
 
-#include "common.h"
+#include "kernelcommon.h"
 
 void kernelReadSectors(uint32_t lba, uint8_t count, void* buffer);
 

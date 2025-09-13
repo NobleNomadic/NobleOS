@@ -1,7 +1,7 @@
 #ifndef KERNELVGA_H
 #define KERNELVGA_H
 
-#include "common.h"
+#include "kernelcommon.h"
 
 /* VGA dimensions and memory */
 static const size_t VGA_WIDTH  = 80;
