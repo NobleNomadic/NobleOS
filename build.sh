@@ -89,7 +89,7 @@ writeToDisk() {
 
 run() {
   echo "QEMU [NobleOS.img]"
-  qemu-system-x86_64 -drive file=NobleOS.img,if=ide,format=raw
+  qemu-system-i386 -drive file=NobleOS.img,if=ide,format=raw
 }
 
 # ==== MAIN SCRIPT ====

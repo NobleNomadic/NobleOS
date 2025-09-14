@@ -8,10 +8,18 @@ typedef unsigned short uint16_t;
 typedef unsigned int   uint32_t;
 typedef unsigned long  size_t;
 
-// Store a message that is sent between modules
+// Store main message block that is sent between modules
 typedef struct {
-  char *header;
-  int module1State;
+  char *header;      // General header for whatever a module decides to put here
+                     // Can be used for telling kernel to trigger syscall, or calling code from another module
+  int syscallNumber; // If calling code from kernel another module, this number will contain the syscall number for that function
+  int skipRequest;   // If not to 0, then the next module will instantly skip and decrease the counter
+  int kernelPanic;   // If set to 1, then kernel will panic next time it checks state
+  int dumpRequest;   // If set to 1, then kernel will print contents of this structure when evaluating it next
+
+  // ERROR TRACING
+  // These values can be set to the last error in a module
+  int module1State; // State left from last call of module 1
   int module2State;
   int module3State;
   int module4State;
