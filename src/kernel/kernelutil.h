@@ -8,6 +8,6 @@
 void dumpKernelState(KernelStateMessage kernelState);
 
 // Shutdown the operating system and hang
-void kernelPanic(void);
+void kernelPanic(KernelStateMessage lastKernelState);
 
 #endif // KERNELUTIL_H

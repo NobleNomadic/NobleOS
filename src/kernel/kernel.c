@@ -53,6 +53,19 @@ ModuleEntryFunction loadModule(uint8_t moduleNumber) {
   return (ModuleEntryFunction)moduleLoadAddress;
 }
 
+// Run between module switches and evaluate the kernel state. Run needed functions
+void checkKernelState(KernelStateMessage kernelState) {
+  // Check for panic request
+  if (kernelState.panicRequest == 1) {
+    kernelPanic(kernelState);
+  }
+
+  // Handle bad cases of module requests
+  if (kernelState.moduleRequest < 0 || kernelState.moduleRequest > 3) {
+    kernelPanic(kernelState);
+  }
+}
+
 // ==== KERNEL MAIN ====
 void kernelMain(void) {
   terminalInitialize();
@@ -60,8 +73,10 @@ void kernelMain(void) {
 
   terminalWrite("[*] SETTING UP KERNEL STATE\n");
   KernelStateMessage kernelState;
+  kernelState.header = "KERNEL INIT STARTING";
 
   terminalWrite("[*] LOADING INITIAL MODULES");
+  kernelState.header = "KERNEL LOADING MODULES";
 
   ModuleEntryFunction module1Entry = loadModule(1);
   terminalWrite(".");
@@ -72,22 +87,49 @@ void kernelMain(void) {
   ModuleEntryFunction module4Entry = loadModule(4);
   terminalWrite(".\n");
 
+  kernelState.header = "KERNEL FINISHED LOADING MODULES";
+
   // Check if modules failed to load, if any failed its a fatal error
   if (!module1Entry || !module2Entry || !module3Entry || !module4Entry) {
-    terminalWrite("[-] ERROR: One or more modules failed to load.\n");
+    terminalWrite("[-] ERROR: ONE OR MORE MODULES FAILED TO LOAD\n");
     kernelPanic(kernelState);
   }
 
-  // Call init module
-  terminalWrite("[*] RUNNING INIT MODULE\n");
+  terminalWrite("[*] STARTING MODULE PROCESSES\n");
+  kernelState.header = "STARTING MODULES";
 
   // OS process-like loop
   while (1) {
     // Run each module's main function
     // Each module mutates the shared KernelStateMessage
-    module1Entry(&kernelState);
-    module2Entry(&kernelState);
-    module3Entry(&kernelState);
-    module4Entry(&kernelState);
+    // A module only runs if it is requested
+    // ==== MODULE 1 ====
+    // The first module should be the init program like the shell
+    // If the first module doesn't handle the kernelState.moduleRequest properly, it will cause a kernel panic
+    if (kernelState.moduleRequest == 0) {
+      module1Entry(&kernelState);
+    }
+    checkKernelState(kernelState);
+
+
+    // ==== MODULE 2 ====
+    if (kernelState.moduleRequest == 1) {
+      module2Entry(&kernelState);
+    }
+    checkKernelState(kernelState);
+
+
+    // ==== MODULE 3 ====
+    if (kernelState.moduleRequest == 2) {
+      module3Entry(&kernelState);
+    }
+    checkKernelState(kernelState);
+
+
+    // ==== MODULE 4 ====
+    if (kernelState.moduleRequest == 3) {
+      module4Entry(&kernelState);
+    }
+    checkKernelState(kernelState);
   }
 }

@@ -1,7 +1,7 @@
 // kernelutil.c - Function implementation for utility functions in kernel binary
 #include "kernelutil.h"
 
-#include "common.h"
+#include "kernelcommon.h"
 #include "kernelvga.h"
 
 // Helper function to convert integer to printable string
@@ -51,16 +51,17 @@ void dumpKernelState(KernelStateMessage kernelState) {
   terminalWrite(kernelState.header ? kernelState.header : "(NULL)");
   terminalWrite("\n\n");
 
-  // Print syscall request
-  terminalWrite("SYSCALL REQUEST: ");
   char numStr[12];
-  intToStr(kernelState.syscallRequest, numStr);
+  
+  // Print module request
+  terminalWrite("MODULE REQUEST: ");
+  intToStr(kernelState.moduleRequest, numStr);
   terminalWrite(numStr);
   terminalWrite("\n");
 
-  // Print skip request
-  terminalWrite("SKIP REQUEST: ");
-  intToStr(kernelState.skipRequest, numStr);
+  // Print syscall request
+  terminalWrite("SYSCALL REQUEST: ");
+  intToStr(kernelState.syscallRequest, numStr);
   terminalWrite(numStr);
   terminalWrite("\n");
 
