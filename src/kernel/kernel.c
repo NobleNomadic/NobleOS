@@ -3,6 +3,7 @@
 #include "kernelvga.h"      // high-level terminal API
 #include "kernelkeyboard.h" // basic keyboard driver
 #include "kerneldisk.h"     // Sector loading driver
+#include "kernelutil.h"     // Utility functions for the kernel
 
 #define MODULE_1_SECTOR 10
 #define MODULE_2_SECTOR 20
@@ -57,6 +58,9 @@ void kernelMain(void) {
   terminalInitialize();
   terminalWrite("[*] KERNEL LOADED\n");
 
+  terminalWrite("[*] SETTING UP KERNEL STATE\n");
+  KernelStateMessage kernelState;
+
   terminalWrite("[*] LOADING INITIAL MODULES");
 
   ModuleEntryFunction module1Entry = loadModule(1);
@@ -68,18 +72,16 @@ void kernelMain(void) {
   ModuleEntryFunction module4Entry = loadModule(4);
   terminalWrite(".\n");
 
-  // Check if modules failed to load
+  // Check if modules failed to load, if any failed its a fatal error
   if (!module1Entry || !module2Entry || !module3Entry || !module4Entry) {
     terminalWrite("[-] ERROR: One or more modules failed to load.\n");
-    return;
+    kernelPanic(kernelState);
   }
 
   // Call init module
   terminalWrite("[*] RUNNING INIT MODULE\n");
 
-  // OS process loop
-  KernelStateMessage kernelState;
-
+  // OS process-like loop
   while (1) {
     // Run each module's main function
     // Each module mutates the shared KernelStateMessage
@@ -89,4 +91,3 @@ void kernelMain(void) {
     module4Entry(&kernelState);
   }
 }
-

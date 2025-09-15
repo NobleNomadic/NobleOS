@@ -100,14 +100,14 @@ compileC src/kernel/kernel.c build/kernel.o
 compileC src/kernel/kernelvga.c build/kernelvga.o
 compileC src/kernel/kernelkeyboard.c build/kernelkeyboard.o
 compileC src/kernel/kerneldisk.c build/kerneldisk.o
+compileC src/kernel/kernelutil.c build/kernelutil.o
 
 compileAsm src/kernel/kerneldisk.asm build/kerneldisk_asm.o elf32
 compileAsm src/boot/boot.asm build/boot.bin bin
 
 # Use modular linker for kernel
-linkFiles kernel build/kernel.elf build/kernel.o build/kernelvga.o build/kernelkeyboard.o build/kerneldisk.o build/kerneldisk_asm.o
+linkFiles kernel build/kernel.elf build/kernel.o build/kernelvga.o build/kernelkeyboard.o build/kerneldisk.o build/kerneldisk_asm.o build/kernelutil.o
 objcopyBinary build/kernel.elf build/kernel.bin
-
 # ---- MODULES ----
 compileC src/modules/dummy.c build/dummy.o
 linkFiles flat build/dummy.elf build/dummy.o
