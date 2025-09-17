@@ -5,6 +5,7 @@
 #define PS2_DATA_PORT   0x60
 #define PS2_STATUS_PORT 0x64
 
+// Scan code set 1, simple uppercase only
 static const char scancodeTable[128] = {
   0, 27,'1','2','3','4','5','6','7','8','9','0','-','=', '\b',
   '\t','Q','W','E','R','T','Y','U','I','O','P','[',']','\n',0,

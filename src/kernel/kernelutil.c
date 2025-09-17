@@ -4,6 +4,10 @@
 #include "kernelcommon.h"
 #include "kernelvga.h"
 
+// Keyboard helper definitions for debugging function
+#define PS2_DATA_PORT   0x60
+#define PS2_STATUS_PORT 0x64
+
 // Helper function to convert integer to printable string
 void intToStr(int num, char *str) {
   int i = 0, isNegative = 0;
@@ -101,6 +105,22 @@ void dumpKernelState(KernelStateMessage kernelState) {
   terminalWrite("=========================\n");
 }
 
+void debugKernelState(kernelStateMessage kernelState) {
+  // Print the kernel state message
+  dumpKernelState(kernelState);
+
+  // Wait for keypress before returning
+  while (1) {
+    if (inb(PS2_STATUS_PORT) & 1) { // Wait for PS2 status to be ready
+      inb(PS2_DATA_PORT);
+      break;
+    }
+  }
+  
+  return;
+}
+
+// Hang the OS
 void kernelPanic(KernelStateMessage kernelLastState) {
   terminalSetColor(VGA_COLOR_RED, VGA_COLOR_BLACK);
 

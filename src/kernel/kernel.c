@@ -64,9 +64,15 @@ void checkKernelState(KernelStateMessage kernelState) {
   if (kernelState.moduleRequest < 0 || kernelState.moduleRequest > 3) {
     kernelPanic(kernelState);
   }
+
+  // Check if a dump request was made from an object
+  if (kernelState.dumpRequest) {
+    dumpKernelState(kernelState);
+  }
 }
 
 // ==== KERNEL MAIN ====
+// Entry function pointed to by the _start function
 void kernelMain(void) {
   terminalInitialize();
   terminalWrite("[*] KERNEL LOADED\n");
@@ -75,17 +81,13 @@ void kernelMain(void) {
   KernelStateMessage kernelState;
   kernelState.header = "KERNEL INIT STARTING";
 
-  terminalWrite("[*] LOADING INITIAL MODULES");
+  terminalWrite("[*] LOADING INITIAL MODULES\n");
   kernelState.header = "KERNEL LOADING MODULES";
 
   ModuleEntryFunction module1Entry = loadModule(1);
-  terminalWrite(".");
   ModuleEntryFunction module2Entry = loadModule(2);
-  terminalWrite(".");
   ModuleEntryFunction module3Entry = loadModule(3);
-  terminalWrite(".");
   ModuleEntryFunction module4Entry = loadModule(4);
-  terminalWrite(".\n");
 
   kernelState.header = "KERNEL FINISHED LOADING MODULES";
 
@@ -103,6 +105,7 @@ void kernelMain(void) {
     // Run each module's main function
     // Each module mutates the shared KernelStateMessage
     // A module only runs if it is requested
+
     // ==== MODULE 1 ====
     // The first module should be the init program like the shell
     // If the first module doesn't handle the kernelState.moduleRequest properly, it will cause a kernel panic
