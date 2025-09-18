@@ -105,17 +105,25 @@ void dumpKernelState(KernelStateMessage kernelState) {
   terminalWrite("=========================\n");
 }
 
-void debugKernelState(kernelStateMessage kernelState) {
+// Dump the kernel and wait for input before continuing:w
+void debugKernelState(KernelStateMessage kernelState) {
   // Print the kernel state message
+  terminalSetColor(VGA_COLOR_GREEN, VGA_COLOR_BLACK);
+  terminalWrite("[*] DEBUGGING BREAKPOINT\n");
   dumpKernelState(kernelState);
 
   // Wait for keypress before returning
+  terminalWrite("> ");
   while (1) {
     if (inb(PS2_STATUS_PORT) & 1) { // Wait for PS2 status to be ready
       inb(PS2_DATA_PORT);
       break;
     }
   }
+
+  terminalWrite("\n");
+
+  terminalSetColor(VGA_COLOR_LIGHT_GRAY, VGA_COLOR_BLACK);
   
   return;
 }
