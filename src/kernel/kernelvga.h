@@ -44,14 +44,14 @@ static inline uint16_t vgaEntry(unsigned char uc, uint8_t color) {
 }
 
 /* Terminal API */
-void terminalInitialize(void);
-void terminalPutChar(char c);
-void terminalWrite(const char* str);
-void terminalClear(void);
+void terminalInitialize(KernelStateMessage *kernelState);
+void terminalPutChar(char c, KernelStateMessage *kernelState);
+void terminalWrite(const char* str, KernelStateMessage *kernelState);
+void terminalClear(KernelStateMessage *kernelState);
 
 /* Cursor and color control */
-void terminalSetCursor(size_t row, size_t col);
-void terminalSetColor(uint8_t fg, uint8_t bg);
+void terminalSetCursor(size_t row, size_t col, KernelStateMessage *kernelState);
+void terminalSetColor(uint8_t fg, uint8_t bg, KernelStateMessage *kernelState);
 
 #endif /* KERNELVGA_H */
 

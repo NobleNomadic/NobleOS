@@ -43,7 +43,7 @@ ModuleEntryFunction loadModule(uint8_t moduleNumber) {
     moduleLoadAddress = (char*)MODULE_4_ENTRY;
     sector = MODULE_4_SECTOR;
   } else {
-    terminalWrite("[-] INVALID MODULE NUMBER\n");
+    terminalWrite("[-] INVALID MODULE NUMBER\n", &kernelState);
     return 0; // Invalid module number
   }
 
@@ -75,13 +75,13 @@ void checkKernelState(KernelStateMessage kernelState) {
 // Entry function pointed to by the _start function
 void kernelMain(void) {
   terminalInitialize();
-  terminalWrite("[*] KERNEL LOADED\n");
+  terminalWrite("[*] KERNEL LOADED\n", &kernelState);
 
-  terminalWrite("[*] SETTING UP KERNEL STATE\n");
+  terminalWrite("[*] SETTING UP KERNEL STATE\n", &kernelState);
   KernelStateMessage kernelState;
   kernelState.header = "KERNEL INIT STARTING";
 
-  terminalWrite("[*] LOADING INITIAL MODULES\n");
+  terminalWrite("[*] LOADING INITIAL MODULES\n", &kernelState);
   kernelState.header = "KERNEL LOADING MODULES";
 
   ModuleEntryFunction module1Entry = loadModule(1);
@@ -93,7 +93,7 @@ void kernelMain(void) {
 
   // Check if modules failed to load, if any failed its a fatal error
   if (!module1Entry || !module2Entry || !module3Entry || !module4Entry) {
-    terminalWrite("[-] ERROR: ONE OR MORE MODULES FAILED TO LOAD\n");
+    terminalWrite("[-] ERROR: ONE OR MORE MODULES FAILED TO LOAD\n", &kernelState);
     kernelPanic(kernelState);
   }
 

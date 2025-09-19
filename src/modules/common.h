@@ -23,6 +23,12 @@ typedef struct {
   int module2State;
   int module3State;
   int module4State;
+
+  // VGA STATE
+  int vgaTerminalRow;
+  int vgaTerminalColumn;
+  int vgaFG;
+  int vgaBG;
 } KernelStateMessage;
 
 /* Port I/O utility function */
