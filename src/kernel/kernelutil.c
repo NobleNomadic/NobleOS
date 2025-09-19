@@ -48,72 +48,72 @@ void intToStr(int num, char *str) {
   }
 }
 
-void dumpKernelState(KernelStateMessage kernelState) { 
-  terminalWrite("=== KERNEL STATE DUMP ===\n\n");
+void dumpKernelState(KernelStateMessage *kernelState) { 
+  terminalWrite("=== KERNEL STATE DUMP ===\n\n", kernelState);
 
-  terminalWrite("HEADER: ");
-  terminalWrite(kernelState.header ? kernelState.header : "(NULL)");
-  terminalWrite("\n\n");
+  terminalWrite("HEADER: ", kernelState);
+  terminalWrite(kernelState->header ? kernelState->header : "(NULL)", kernelState);
+  terminalWrite("\n\n", kernelState);
 
   char numStr[12];
   
   // Print module request
-  terminalWrite("MODULE REQUEST: ");
-  intToStr(kernelState.moduleRequest, numStr);
-  terminalWrite(numStr);
-  terminalWrite("\n");
+  terminalWrite("MODULE REQUEST: ", kernelState);
+  intToStr(kernelState->moduleRequest, numStr);
+  terminalWrite(numStr, kernelState);
+  terminalWrite("\n", kernelState);
 
   // Print syscall request
-  terminalWrite("SYSCALL REQUEST: ");
-  intToStr(kernelState.syscallRequest, numStr);
-  terminalWrite(numStr);
-  terminalWrite("\n");
+  terminalWrite("SYSCALL REQUEST: ", kernelState);
+  intToStr(kernelState->syscallRequest, numStr);
+  terminalWrite(numStr, kernelState);
+  terminalWrite("\n", kernelState);
 
   // Print panic request
-  terminalWrite("PANIC REQUEST: ");
-  intToStr(kernelState.panicRequest, numStr);
-  terminalWrite(numStr);
-  terminalWrite("\n");
+  terminalWrite("PANIC REQUEST: ", kernelState);
+  intToStr(kernelState->panicRequest, numStr);
+  terminalWrite(numStr, kernelState);
+  terminalWrite("\n", kernelState);
 
   // Print dump request
-  terminalWrite("DUMP REQUEST: ");
-  intToStr(kernelState.dumpRequest, numStr);
-  terminalWrite(numStr);
-  terminalWrite("\n\n");
+  terminalWrite("DUMP REQUEST: ", kernelState);
+  intToStr(kernelState->dumpRequest, numStr);
+  terminalWrite(numStr, kernelState);
+  terminalWrite("\n\n", kernelState);
 
   // Print last states of each module - can help trace errors
-  terminalWrite("MODULE 1 STATE: ");
-  intToStr(kernelState.module1State, numStr);
-  terminalWrite(numStr);
-  terminalWrite("\n");
+  terminalWrite("MODULE 1 STATE: ", kernelState);
+  intToStr(kernelState->module1State, numStr);
+  terminalWrite(numStr, kernelState);
+  terminalWrite("\n", kernelState);
 
-  terminalWrite("MODULE 2 STATE: ");
-  intToStr(kernelState.module2State, numStr);
-  terminalWrite(numStr);
-  terminalWrite("\n");
+  terminalWrite("MODULE 2 STATE: ", kernelState);
+  intToStr(kernelState->module2State, numStr);
+  terminalWrite(numStr, kernelState);
+  terminalWrite("\n", kernelState);
 
-  terminalWrite("MODULE 3 STATE: ");
-  intToStr(kernelState.module3State, numStr);
-  terminalWrite(numStr);
-  terminalWrite("\n");
+  terminalWrite("MODULE 3 STATE: ", kernelState);
+  intToStr(kernelState->module3State, numStr);
+  terminalWrite(numStr, kernelState);
+  terminalWrite("\n", kernelState);
 
-  terminalWrite("MODULE 4 STATE: ");
-  intToStr(kernelState.module4State, numStr);
-  terminalWrite(numStr);
-  terminalWrite("\n");
+  terminalWrite("MODULE 4 STATE: ", kernelState);
+  intToStr(kernelState->module4State, numStr);
+  terminalWrite(numStr, kernelState);
+  terminalWrite("\n", kernelState);
 
-  terminalWrite("=========================\n");
+  terminalWrite("=========================\n", kernelState);
 }
 
-// Dump the kernel and wait for input before continuing:w
-void debugKernelState(KernelStateMessage kernelState) {
+// Dump the kernel and wait for input before continuing
+void debugKernelState(KernelStateMessage *kernelState) {
   // Print the kernel state message
-  terminalSetColor(VGA_COLOR_GREEN, VGA_COLOR_BLACK);
-  terminalWrite("[*] DEBUGGING BREAKPOINT\n");
+  terminalSetColor(VGA_COLOR_GREEN, VGA_COLOR_BLACK, kernelState);
+  terminalWrite("[*] DEBUGGING BREAKPOINT\n", kernelState);
   dumpKernelState(kernelState);
 
   // Wait for keypress before returning
-  terminalWrite("> ");
+  terminalWrite("> ", kernelState);
   while (1) {
     if (inb(PS2_STATUS_PORT) & 1) { // Wait for PS2 status to be ready
       inb(PS2_DATA_PORT);
@@ -121,20 +121,21 @@ void debugKernelState(KernelStateMessage kernelState) {
     }
   }
 
-  terminalWrite("\n");
+  terminalWrite("\n", kernelState);
 
-  terminalSetColor(VGA_COLOR_LIGHT_GRAY, VGA_COLOR_BLACK);
+  terminalSetColor(VGA_COLOR_LIGHT_GRAY, VGA_COLOR_BLACK, kernelState);
   
   return;
 }
 
 // Hang the OS
-void kernelPanic(KernelStateMessage kernelLastState) {
-  terminalSetColor(VGA_COLOR_RED, VGA_COLOR_BLACK);
+void kernelPanic(KernelStateMessage *kernelLastState) {
+  terminalSetColor(VGA_COLOR_RED, VGA_COLOR_BLACK, kernelLastState);
 
   // Print last kernel state and hang
-  terminalWrite("[!] KERNEL PANIC! LAST KERNEL STATE:\n");
+  terminalWrite("[!] KERNEL PANIC! LAST KERNEL STATE:\n", kernelLastState);
   dumpKernelState(kernelLastState);
 
   while (1) {}
 }
+

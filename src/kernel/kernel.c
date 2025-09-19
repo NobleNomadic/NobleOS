@@ -26,7 +26,7 @@ void _start(void) {
 
 // ==== MODULE LOADER ====
 // Load a module from disk into memory and return pointer to its entry function
-ModuleEntryFunction loadModule(uint8_t moduleNumber) {
+ModuleEntryFunction loadModule(uint8_t moduleNumber, KernelStateMessage *kernelState) {
   char* moduleLoadAddress = 0;
   uint8_t sector = 0;
 
@@ -43,7 +43,7 @@ ModuleEntryFunction loadModule(uint8_t moduleNumber) {
     moduleLoadAddress = (char*)MODULE_4_ENTRY;
     sector = MODULE_4_SECTOR;
   } else {
-    terminalWrite("[-] INVALID MODULE NUMBER\n", &kernelState);
+    terminalWrite("[-] INVALID MODULE NUMBER\n", kernelState);
     return 0; // Invalid module number
   }
 
@@ -57,47 +57,47 @@ ModuleEntryFunction loadModule(uint8_t moduleNumber) {
 void checkKernelState(KernelStateMessage kernelState) {
   // Check for panic request
   if (kernelState.panicRequest == 1) {
-    kernelPanic(kernelState);
+    kernelPanic(&kernelState);
   }
 
   // Handle bad cases of module requests
   if (kernelState.moduleRequest < 0 || kernelState.moduleRequest > 3) {
-    kernelPanic(kernelState);
+    kernelPanic(&kernelState);
   }
 
   // Check if a dump request was made from an object
   if (kernelState.dumpRequest) {
-    dumpKernelState(kernelState);
+    dumpKernelState(&kernelState);
   }
 }
 
 // ==== KERNEL MAIN ====
 // Entry function pointed to by the _start function
 void kernelMain(void) {
-  terminalInitialize();
+  KernelStateMessage kernelState;
+  terminalInitialize(&kernelState);
   terminalWrite("[*] KERNEL LOADED\n", &kernelState);
 
   terminalWrite("[*] SETTING UP KERNEL STATE\n", &kernelState);
-  KernelStateMessage kernelState;
   kernelState.header = "KERNEL INIT STARTING";
 
   terminalWrite("[*] LOADING INITIAL MODULES\n", &kernelState);
   kernelState.header = "KERNEL LOADING MODULES";
 
-  ModuleEntryFunction module1Entry = loadModule(1);
-  ModuleEntryFunction module2Entry = loadModule(2);
-  ModuleEntryFunction module3Entry = loadModule(3);
-  ModuleEntryFunction module4Entry = loadModule(4);
+  ModuleEntryFunction module1Entry = loadModule(1, &kernelState);
+  ModuleEntryFunction module2Entry = loadModule(2, &kernelState);
+  ModuleEntryFunction module3Entry = loadModule(3, &kernelState);
+  ModuleEntryFunction module4Entry = loadModule(4, &kernelState);
 
   kernelState.header = "KERNEL FINISHED LOADING MODULES";
 
   // Check if modules failed to load, if any failed its a fatal error
   if (!module1Entry || !module2Entry || !module3Entry || !module4Entry) {
     terminalWrite("[-] ERROR: ONE OR MORE MODULES FAILED TO LOAD\n", &kernelState);
-    kernelPanic(kernelState);
+    kernelPanic(&kernelState);
   }
 
-  terminalWrite("[*] STARTING MODULE PROCESSES\n");
+  terminalWrite("[*] STARTING MODULE PROCESSES\n", &kernelState);
   kernelState.header = "STARTING MODULES";
 
   // OS process-like loop

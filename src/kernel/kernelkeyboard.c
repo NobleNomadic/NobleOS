@@ -40,7 +40,7 @@ char keyboardGetChar(void) {
 }
 
 // Read a line from keyboard into buffer, echoing input
-void keyboardReadLine(char* buffer, size_t maxlen) {
+void keyboardReadLine(char* buffer, size_t maxlen, KernelStateMessage *kernelState) {
   size_t idx = 0;
 
   while (1) {
@@ -48,7 +48,7 @@ void keyboardReadLine(char* buffer, size_t maxlen) {
 
     if (c == '\n' || c == '\r') {
       buffer[idx] = '\0';
-      terminalPutChar('\n');
+      terminalPutChar('\n', kernelState);
       break;
     } else if (c == '\b') {
       if (idx > 0) {
@@ -69,11 +69,11 @@ void keyboardReadLine(char* buffer, size_t maxlen) {
         VGA_MEMORY[index] = vgaEntry(' ', terminalColor);
 
         // Update hardware cursor
-        terminalSetCursor(terminalRow, terminalColumn);
+        terminalSetCursor(terminalRow, terminalColumn, kernelState);
       }
     } else if (idx < maxlen - 1) {
       buffer[idx++] = c;
-      terminalPutChar(c);
+      terminalPutChar(c, kernelState);
     }
     // ignore extra characters if buffer full
   }

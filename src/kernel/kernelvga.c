@@ -38,7 +38,7 @@ void terminalSetCursor(size_t row, size_t col, KernelStateMessage *kernelState) 
 }
 
 /* Set terminal color */
-void terminalSetColor(uint8_t fg, uint8_t bg, KernelStateMessage kernelState) {
+void terminalSetColor(uint8_t fg, uint8_t bg, KernelStateMessage *kernelState) {
   terminalColor = vgaColor(fg, bg);
 }
 
@@ -62,7 +62,7 @@ void terminalInitialize(KernelStateMessage *kernelState) {
   terminalRow = 0;
   terminalColumn = 0;
   // Set terminal color
-  terminalColor = vgaColor(VGA_COLOR_LIGHT_GRAY, VGA_COLOR_BLACK, kernelState);
+  terminalColor = vgaColor(VGA_COLOR_LIGHT_GRAY, VGA_COLOR_BLACK);
 
   terminalClear(kernelState);
 
@@ -99,7 +99,7 @@ void terminalPutChar(char c, KernelStateMessage *kernelState) {
 }
 
 /* Write null-terminated string */
-void terminalWrite(const char* str, KernelStateMessage kernelState) {
+void terminalWrite(const char* str, KernelStateMessage *kernelState) {
   while (*str) {
     terminalPutChar(*str++, kernelState);
   }

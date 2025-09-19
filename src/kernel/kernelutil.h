@@ -5,12 +5,13 @@
 #include "kernelcommon.h"
 
 // Dump the kernel state to the screen
-void dumpKernelState(KernelStateMessage kernelState);
+void dumpKernelState(KernelStateMessage *kernelState);
 
 // Dump kernel state and wait for keypress to continue
-void debugKernelState(KernelStateMessage kernelState);
+void debugKernelState(KernelStateMessage *kernelState);
 
 // Shutdown the operating system and hang
-void kernelPanic(KernelStateMessage lastKernelState);
+void kernelPanic(KernelStateMessage *kernelState);
 
 #endif // KERNELUTIL_H
+

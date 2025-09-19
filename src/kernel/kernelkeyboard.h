@@ -7,7 +7,7 @@
 char keyboardGetChar(void);
 
 // Read a line of input from keyboard into buffer
-void keyboardReadLine(char* buffer, size_t maxlen);
+void keyboardReadLine(char* buffer, size_t maxlen, KernelStateMessage *kernelState);
 
 #endif /* KERNELKEYBOARD_H */
 
