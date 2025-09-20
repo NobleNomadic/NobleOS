@@ -61,7 +61,10 @@ compileAsm src/boot/boot.asm build/boot/boot.bin bin
 
 # ---- KERNEL ----
 compileC src/kernel/kernel.c build/kernel/kernel.o
-linkFiles linker/kernel.ld build/kernel/kernel.elf build/kernel/kernel.o
+compileC src/kernel/memory.c build/kernel/memory.o
+compileC src/kernel/kernelvga.c build/kernel/kernelvga.o
+
+linkFiles linker/kernel.ld build/kernel/kernel.elf build/kernel/kernel.o build/kernel/memory.o build/kernel/kernelvga.o
 objcopyBinary build/kernel/kernel.elf build/kernel/kernel.bin
 
 # ---- DISK ----

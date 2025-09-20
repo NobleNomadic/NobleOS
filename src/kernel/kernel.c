@@ -1,13 +1,23 @@
-// kernel.c - OS entry point
+// kernel.c - Kernel binary entry point
+#include "memory.h"    // Paging and memory controller
+#include "kernelvga.h" // VGA terminal system
+
+// ==== ENTRY POINT ====
 void _start(void) {
-  __asm__ volatile ("jmp kernelMain\n");
+  asm volatile ("jmp kernelMain\n");
 }
 
+// Kernel main
 void kernelMain() {
-  volatile unsigned short* vga = (volatile unsigned short*)0xB8000;
-  vga[0] = (0x0F << 8) | 'H';
-  vga[1] = (0x0F << 8) | 'i';
-  vga[2] = (0x0F << 8) | '!';
-  
+  // Setup VGA
+  vgaClearScreen();
+
+  // Setup and enable paging
+  setupPaging();
+
+  // Map the kernel's address to match with physical
+  mapPage(0x0010000, 0x0010000, PAGE_RW);
+
+  // Hang system
   while (1) {}
 }

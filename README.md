@@ -1,5 +1,12 @@
 # NobleOS
-32 bit operating system made in C. This is my little operating system that I am making after experimenting with OS dev and making [NomadOS](https://github.com/NobleNomadic/NomadOS). This is my hobby operating system that I am making for myself, and so lots of standard features and proper system design principles are not included.
+NobleOS is my 32 bit hobby operating system made in C.
+
+## General Specs
+- 32 Bit
+- Microkernel/module based drivers
+- Minimal memory management system
+- VGA display
+- Custom FAT-like filesystem
 
 ## Design
-NobleOS is designed to be a modular kernel where the main kernel binary provides little functionality except to load modules from the disk. Each module is a standalone binary that can use its disk and memory space however it wants including loading other small parts within their memory section of 64K RAM. Each module can communicate through a standardized messaging system for requesting code from other modules. This means a userspace module like a shell can run code from a complex driver to save memory space within its module memory.
+NobleOS is a microkernel design with the kernel in the lower half of memory. It has a simple paging system where the kernel lives in a 4kb page, and user programs are assigned less privalged pages of the same size. There is no multitasking, however multiple user programs can be in memory at once, for example a shell program can load code into memory and run it, however a shell can't run at the same time as a background process.
