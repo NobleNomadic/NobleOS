@@ -1,6 +1,7 @@
 // kernel.c - Kernel binary entry point
-#include "memory.h"    // Paging and memory controller
-#include "kernelvga.h" // VGA terminal system
+#include "kernelvga.h"  // VGA terminal system
+#include "kerneldisk.h" // Built in kernel disk reader
+#include "syscall.h"    // Syscall interrupt manager
 
 // ==== ENTRY POINT ====
 void _start(void) {
@@ -11,13 +12,19 @@ void _start(void) {
 void kernelMain() {
   // Setup VGA
   vgaClearScreen();
+  vgaPrint("[*] KERNEL STARTED\n");
 
-  // Setup and enable paging
-  setupPaging();
+  // Setup syscall handler
+  vgaPrint("[*] INSTALLING SYSCALL HANDLER\n");
+  installInterruptHandler();
 
-  // Map the kernel's address to match with physical
-  mapPage(0x0010000, 0x0010000, PAGE_RW);
+  static char buffer[512];
+  for (int i = 0; i < 512; i++) buffer[i] = 0;
 
-  // Hang system
+  kernelDiskReadSectors(5, 1, buffer);
+  // Ensure printable string termination (in case disk data lacks NUL).
+  buffer[511] = '\0';
+  vgaPrint(buffer);
+
   while (1) {}
 }
