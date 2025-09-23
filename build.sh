@@ -5,7 +5,8 @@ clean() {
   echo "RM [build]"
   rm -rf build
   rm -f NobleOS.img
-  mkdir -p build/boot build/kernel
+  mkdir -p build/boot build/kernel build/drivers
+  mkdir build/drivers/vga build/drivers/disk build/drivers/keyboard
 }
 
 compileC() {
@@ -34,7 +35,7 @@ linkFiles() {
 objcopyBinary() {
   local input=$1
   local output=$2
-  echo "OB [$input -> $output]"
+  echo "OB [$input]"
   i386-elf-objcopy -O binary "$input" "$output"
 }
 
@@ -68,7 +69,22 @@ compileC src/kernel/syscall.c build/kernel/syscall.o
 linkFiles linker/kernel.ld build/kernel/kernel.elf build/kernel/kernel.o build/kernel/kernelvga.o build/kernel/syscall.o build/kernel/kerneldisk.o
 objcopyBinary build/kernel/kernel.elf build/kernel/kernel.bin
 
-# ---- DISK ----
+# ---- VGA DRIVER ----
+compileC src/drivers/vga/vga.c build/drivers/vga/vga.o
+linkFiles linker/vga.ld build/drivers/vga/vga.elf build/drivers/vga/vga.o
+objcopyBinary build/drivers/vga/vga.elf build/drivers/vga/vga.bin
+
+# ---- KEYBOARD DRIVER ----
+compileC src/drivers/keyboard/keyboard.c build/drivers/keyboard/keyboard.o
+linkFiles linker/keyboard.ld build/drivers/keyboard/keyboard.elf build/drivers/keyboard/keyboard.o
+objcopyBinary build/drivers/keyboard/keyboard.elf build/drivers/keyboard/keyboard.bin
+
+# ---- DISK DRIVER
+compileC src/drivers/disk/disk.c build/drivers/disk/disk.o
+linkFiles linker/disk.ld build/drivers/disk/disk.elf build/drivers/disk/disk.o
+objcopyBinary build/drivers/disk/disk.elf build/drivers/disk/disk.bin
+
+# ---- WRITE TO DISK ----
 createDisk
 
 writeToDisk build/boot/boot.bin 0
