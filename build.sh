@@ -89,6 +89,9 @@ createDisk
 writeToDisk build/boot/boot.bin 0 # Bootloader
 writeToDisk build/kernel/kernel.bin 1 # Kernel binary
 writeToDisk build/drivers/vga/vga.bin 11
+writeToDisk build/drivers/keyboard/keyboard.bin 21
+writeToDisk build/drivers/disk/disk.bin 31
+
 
 if [[ $1 == "run" ]]; then
   run

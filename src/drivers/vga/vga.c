@@ -16,6 +16,11 @@ static uint8_t g_bg = VGA_BLACK;
 static int terminalRow = 0;
 static int terminalCol = 0;
 
+void entry(char *message) {
+  vgaPrint(message);
+  return;
+}
+
 /* Internal: compute the VGA attribute byte */
 static inline uint8_t vga_attribute(uint8_t fg, uint8_t bg) {
   return (uint8_t)((bg << 4) | (fg & 0x0F));

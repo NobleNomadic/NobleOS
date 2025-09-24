@@ -1,4 +1,5 @@
 // kernel.c - Kernel binary entry point
+#include "stddef.h"     // Standard type defintions
 #include "kernelvga.h"  // VGA terminal system
 #include "kerneldisk.h" // Built in kernel disk reader
 
@@ -30,6 +31,9 @@ void kernelMain() {
 
   // ==== LOAD DRIVERS ====
   vgaPrint("[*] LOADING DRIVERS\n");
+  vgaPrint("  [+] VGA DRIVER\n");
+  vgaPrint("  [+] KEYBOARD DRIVER\n");
+  vgaPrint("  [+] DISK DRIVER\n");
 
   while (1) {}
 }
@@ -78,7 +82,7 @@ void installInterruptHandler(void) {
 void syscallHandler() {
   uint32_t syscallNumber = 0;
   uint32_t arg1 = 0;
-  uint32_t arg2 = 0;
+  const char *arg2 = 0;   // treat as string
 
   // Get the syscall number from EAX
   asm volatile("mov %%eax, %0" : "=r"(syscallNumber));
@@ -86,12 +90,12 @@ void syscallHandler() {
   // Get the first argument from EBX
   asm volatile("mov %%ebx, %0" : "=r"(arg1));
 
-  // Get the second argument from ECX (if applicable)
+  // Get the second argument from ECX (string pointer)
   asm volatile("mov %%ecx, %0" : "=r"(arg2));
 
-  vgaPrint("Interrupt!\n");
-
-  // Handle the syscall based on the number in EAX
-  return;
+  // Example: print string if syscallNumber == 0
+  if (syscallNumber == 0) {
+    vgaPrint((char *)arg2);
+  }
 }
 
