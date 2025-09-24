@@ -1,9 +1,7 @@
 # NobleOS
-NobleOS is my 32 bit hobby operating system made in C.
+NobleOS is a 16 bit DOS like operating system made in assembly.
 
-## General Specs
-- Made with 32 bit C
+## OS Specs
 - Microkernel design
-- VGA display
 - Custom FAT-like filesystem
-
+- Drivers for screen, keyboard, disk, and filesystem
