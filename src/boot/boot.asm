@@ -17,6 +17,10 @@ bootEntry:
   mov al, 0x03
   int 0x10
 
+  ; Print entry message
+  mov si, bootEntryMessage
+  call printString
+
   ; Load kernel
   call loadKernel
 
@@ -67,15 +71,15 @@ loadKernel:
 
 ; ==== FIND KERNEL FILE ====
 .searchKernel:
-  mov cx, 46              ; Max entries
+  mov cx, 42              ; Max entries (512/12 = 42.67, so 42)
   mov si, kernelName      ; SI points to "KERNEL  "
 .nextEntry:
   ; Compute current FAT entry offset
   mov di, 0x3000          ; FAT start
   mov dx, cx
-  mov bx, 46
+  mov bx, 42
   sub bx, dx              ; number of entries already checked
-  imul bx, 11             ; multiply by FAT entry size
+  imul bx, 12             ; multiply by NEW FAT entry size (12 bytes)
   add di, bx              ; DI points to current entry
 
   xor bx, bx              ; Filename index
@@ -87,10 +91,11 @@ loadKernel:
   inc bx
   cmp bx, 8
   jne .compareLoop
-  ; Match found, get CHS
+  ; Match found, get CHS and size
   mov ch, [di + 8]        ; Cylinder
   mov dh, [di + 9]        ; Head
   mov cl, [di + 10]       ; Sector
+  mov al, [di + 11]       ; Size in sectors
   jmp .loadKernelSector
 .notMatch:
   loop .nextEntry
@@ -100,14 +105,16 @@ loadKernel:
 ; Load kernel into memory once address is found
 .loadKernelSector:
   ; Load kernel from disk with int 0x13
+  ; AL already contains the size from the FAT entry
+  push ax
   mov ax, 0x1000 ; Segment to load kernel
   mov es, ax
   mov bx, 0x0000 ; Offset to load kernel
+  pop ax
 
-  ; Disk args
-  mov al, 1
+  ; Disk args (AL already set with size)
   mov dl, 0x80   ; First hard disk
-  mov ah, 0x02
+  mov ah, 0x02   ; Read sectors function
   int 0x13
 
 ; Clean up registers and return
@@ -116,7 +123,7 @@ loadKernel:
   ret
 
 ; ==== DATA SECTION ====
-bootEntryString db "[*] Bootable device found", STREND
+bootEntryMessage db "[*] Bootable device found", STREND
 kernelName db "KERNEL  "
 
 ; ==== BOOT SIGNATURE ====

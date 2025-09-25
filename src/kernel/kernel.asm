@@ -16,3 +16,7 @@ kernelEntry:
 ; Backup hang
 hang:
   jmp $
+
+
+; Pad to 4 sectors
+times 2048 - ($ - $$) db 0
