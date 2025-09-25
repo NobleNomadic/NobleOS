@@ -7,7 +7,7 @@ clean() {
   rm -rf build
   rm -rf NobleOS.img
   mkdir build
-  mkdir build/boot build/kernel
+  mkdir build/boot build/kernel build/fat
 }
 
 assemble() {
@@ -33,8 +33,20 @@ run() {
 clean
 createDisk
 
+# ==== ASSEMBLE SOURCE ====
+# ---- Bootloader ----
 assemble src/boot/boot.asm build/boot/boot.bin
+
+# ---- Initial FAT ----
+assemble src/fat/fat.asm build/fat/fat.bin
+
+# ---- Kernel ----
+assemble src/kernel/kernel.asm build/kernel/kernel.bin
+
+# ==== WRITE TO DISK ====
 writeToDisk build/boot/boot.bin 0
+writeToDisk build/fat/fat.bin 1
+writeToDisk build/kernel/kernel.bin 2
 
 if [[ $1 == "run" ]]; then
   run
