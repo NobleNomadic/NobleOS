@@ -7,7 +7,7 @@ clean() {
   rm -rf build
   rm -rf NobleOS.img
   mkdir build
-  mkdir build/boot build/kernel build/fat
+  mkdir build/boot build/kernel build/fat build/drivers
 }
 
 assemble() {
@@ -43,10 +43,14 @@ assemble src/fat/fat.asm build/fat/fat.bin
 # ---- Kernel ----
 assemble src/kernel/kernel.asm build/kernel/kernel.bin
 
+# ---- Drivers ----
+assemble src/drivers/test.asm build/drivers/test.bin
+
 # ==== WRITE TO DISK ====
 writeToDisk build/boot/boot.bin 0
 writeToDisk build/fat/fat.bin 1
 writeToDisk build/kernel/kernel.bin 2
+writeToDisk build/drivers/test.bin 7
 
 if [[ $1 == "run" ]]; then
   run

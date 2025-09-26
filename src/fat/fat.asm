@@ -10,4 +10,10 @@ db 0x00           ; head
 db 0x03           ; sector
 db 0x04           ; sector count
 
+db "TEST    "
+db 0x00           ; cylinder
+db 0x00           ; head
+db 0x08           ; sector
+db 0x01           ; sector count
+
 times 512 - ($ - $$) db 0
