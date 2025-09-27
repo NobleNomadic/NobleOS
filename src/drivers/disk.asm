@@ -1,4 +1,4 @@
-; test.asm - Sample driver to load into 0x2000:0x0000
+; disk.asm - Driver to read and write files from disk
 ORG 0x0000
 BITS 16
 
@@ -10,9 +10,9 @@ driverEntry:
   mov ds, ax
   mov es, ax
 
-  ; Print char
+  ; Print debug char
   mov ah, 0x0E
-  mov al, ":"
+  mov al, "D"
   int 0x10
 
   popa

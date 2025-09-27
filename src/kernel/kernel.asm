@@ -15,11 +15,20 @@ kernelEntry:
   ; Load FAT into kernel segment
   call loadFAT
 
-  ; Load test driver
-  mov si, testDriverName
+  ; Load disk driver
+  mov si, diskDriverFilename
+  mov word [driverLoadOffset], 0x0000
   call loadDriver
-  call 0x2000:0x0000
 
+  ; Load keyboard driver
+  mov si, keyboardDriverFilename
+  mov word [driverLoadOffset], 0x2000
+  call loadDriver
+
+  ; Call loaded code
+  call 0x2000:0x0000
+  call 0x2000:0x2000
+  
 ; Backup hang
 hang:
   jmp $
@@ -109,10 +118,10 @@ loadDriver:
   mov al, [di + 11]       ; Size in sectors
   
   ; Load driver into segment 0x2000
-  push ax                 ; Save sector count
+  push ax                ; Save sector count
   mov ax, 0x2000         ; Target segment
   mov es, ax
-  mov bx, 0x0000         ; Target offset
+  mov bx, [driverLoadOffset]
   pop ax                 ; Restore sector count
 
   mov dl, 0x80           ; First hard disk
@@ -131,7 +140,11 @@ loadDriver:
 kernelEntryMessage db "[*] Kernel loaded", STREND
 
 ; Driver names
-testDriverName db "TEST    "
+diskDriverFilename db "DSKDRIVE"
+keyboardDriverFilename db "KEYDRIVE"
+
+; Variable to store offset of next driver to load
+driverLoadOffset dw 0
 
 ; Pad to 4 sectors
 times 2048 - ($ - $$) db 0

@@ -44,13 +44,15 @@ assemble src/fat/fat.asm build/fat/fat.bin
 assemble src/kernel/kernel.asm build/kernel/kernel.bin
 
 # ---- Drivers ----
-assemble src/drivers/test.asm build/drivers/test.bin
+assemble src/drivers/disk.asm build/drivers/disk.bin
+assemble src/drivers/keyboard.asm build/drivers/keyboard.bin
 
 # ==== WRITE TO DISK ====
 writeToDisk build/boot/boot.bin 0
 writeToDisk build/fat/fat.bin 1
 writeToDisk build/kernel/kernel.bin 2
-writeToDisk build/drivers/test.bin 7
+writeToDisk build/drivers/disk.bin 10
+writeToDisk build/drivers/keyboard.bin 12
 
 if [[ $1 == "run" ]]; then
   run
