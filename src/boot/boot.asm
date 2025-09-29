@@ -20,7 +20,11 @@ bootEntry:
   mov si, bootEntryMessage
   call printString
 
+  ; Load kernel
   call loadKernel
+
+  ; Give kernel control
+  jmp 0x1000:0x0000
 
 ; Backup hang function
 hang:
@@ -47,14 +51,13 @@ printString:
 loadKernel:
   pusha
 
-  push cx
   ; Use BIOS int 0x13 to load from disk
   ; Memory args
   mov ax, 0x1000 ; Segment to load data into
   mov es, ax
   mov bx, 0x0000 ; Offset
   ; Disk args
-  mov al, 4      ; Read 4 sectors
+  mov al, 8      ; Read 8 sectors
   mov dl, 0x00   ; Read from first floppy drive
   mov ch, 0      ; Cylinder 0
   mov dh, 0      ; Head 0

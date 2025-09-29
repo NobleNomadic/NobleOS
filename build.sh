@@ -46,8 +46,12 @@ createDisk
 # ---- BOOTLOADER ----
 assemble src/boot/boot.asm build/boot/boot.bin
 
+# ---- KERNEL ----
+assemble src/kernel/kernel.asm build/kernel/kernel.bin
+
 # ==== WRITE TO DISK ====
 writeToDisk build/boot/boot.bin 0
+writeToDisk build/kernel/kernel.bin 1
 
 # Run if 'run' argument added
 if [[ $1 == "run" ]]; then

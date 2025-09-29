@@ -4,13 +4,12 @@
 ## To Do
 - [x] Bootloader
 - [ ] Kernel
-  - [ ] Syscall handler
-  - [ ] Driver loading system
+  - [x] Load drivers
+  - [ ] Load userspace
 - [ ] Drivers
   - [ ] Screen driver
   - [ ] Keyboard driver
   - [ ] Disk driver
 - [ ] Userspace
-  - [ ] COM binary loading
   - [ ] Shell program
   - [ ] Core util programs
