@@ -4,7 +4,7 @@
 ## To Do
 - [x] Bootloader
 - [ ] Kernel
-  - [x] Load drivers
+  - [ ] Load drivers
   - [ ] Load userspace
 - [ ] Drivers
   - [ ] Screen driver

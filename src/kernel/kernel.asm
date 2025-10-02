@@ -1,3 +1,4 @@
+; kernel.asm - Main OS controller
 ORG 0x0000
 BITS 16
 
@@ -16,6 +17,25 @@ kernelEntry:
 
   ; Load drivers
   call loadDrivers
+
+  ; Initialize drivers by calling them and letting them install interrupts
+  call 0x2000:0x0000  ; Call screen driver
+  call 0x2000:0x2000  ; Call keyboard driver
+  call 0x2000:0x4000  ; Call disk driver
+
+  ; Reset kernel segment
+  mov ax, 0x1000
+  mov ds, ax
+  mov es, ax
+
+  mov ax, 0x3000
+  mov es, ax
+  mov bx, 0x0000
+  mov ah, 0x01
+  mov al, 0x01
+  int 0x83
+
+  jmp 0x3000:0x0000
 
 ; Backup hang
 hang:
@@ -38,107 +58,63 @@ printString:
   pop ax
   ret
 
-; Print last 4 bytes from loaded driver as ASCII
-; ES:BX points to the loaded driver, CX = size in bytes
-printDriverLoaded:
-  pusha
-  
-  ; Print the message prefix
-  mov si, driverLoadedMessage
-  call printString
-  
-  ; Calculate address of last 4 bytes
-  ; Address = ES:BX + size - 4
-  mov di, bx
-  add di, cx
-  sub di, 4
-  
-  ; Print 4 ASCII characters
-  mov cx, 4
-.printLoop:
-  mov al, es:[di]
-  mov ah, 0x0E
-  int 0x10
-  inc di
-  loop .printLoop
-  
-  ; Print newline
-  mov si, newline
-  call printString
-  
-  popa
-  ret
-
-; Read drivers from disk into memory
+; Load drivers from disk into memory
 loadDrivers:
   pusha
 
-  ; Print loading drivers message
   mov si, loadingDriversMessage
   call printString
 
-.firstDriver:
+.driver1:
+  ; Use BIOS int 0x13 to read disk
   ; Memory args
-  mov ax, 0x2000 ; Segment 0x2000
+  mov ax, 0x2000 ; Segment
   mov es, ax
-  mov bx, 0x0000 ; Offset 0x0000
+  mov bx, 0x0000 ; Offset
   ; Disk args
-  mov al, 2      ; 2 sectors
-  mov dl, 0x00   ; First floppy drive
+  mov al, 1      ; Read 1 sector
+  mov dl, 0x00   ; Read from first floppy drive
   mov ch, 0      ; Cylinder 0
   mov dh, 0      ; Head 0
   mov cl, 11     ; Sector 11
-
   ; Call BIOS
-  mov ah, 0x02   ; Setup BIOS disk read sectors
+  mov ah, 0x02
   int 0x13
   jc .error
-  
-  ; Print loaded message
-  mov cx, 1024   ; 2 sectors = 1024 bytes
-  call printDriverLoaded
 
-.secondDriver:
+.driver2:
+  ; Use BIOS int 0x13 to read disk
   ; Memory args
-  mov ax, 0x2000 ; Segment 0x2000
+  mov ax, 0x2000 ; Segment
   mov es, ax
-  mov bx, 0x2000 ; Offset 0x2000
+  mov bx, 0x2000 ; Offset
   ; Disk args
-  mov al, 2      ; 2 sectors
-  mov dl, 0x00   ; First floppy drive
+  mov al, 1      ; Read 1 sector
+  mov dl, 0x00   ; Read from first floppy drive
+  mov ch, 0      ; Cylinder 0
+  mov dh, 0      ; Head 0
+  mov cl, 12     ; Sector 12
+  ; Call BIOS
+  mov ah, 0x02
+  int 0x13
+  jc .error
+
+.driver3:
+  ; Use BIOS int 0x13 to read disk
+  ; Memory args
+  mov ax, 0x2000 ; Segment
+  mov es, ax
+  mov bx, 0x4000 ; Offset
+  ; Disk args
+  mov al, 1      ; Read 1 sector
+  mov dl, 0x00   ; Read from first floppy drive
   mov ch, 0      ; Cylinder 0
   mov dh, 0      ; Head 0
   mov cl, 13     ; Sector 13
-
   ; Call BIOS
-  mov ah, 0x02   ; Setup BIOS disk read sectors
+  mov ah, 0x02
   int 0x13
   jc .error
-  
-  ; Print loaded message
-  mov cx, 1024   ; 2 sectors = 1024 bytes
-  call printDriverLoaded
-
-.thirdDriver:
-  ; Memory args
-  mov ax, 0x2000 ; Segment 0x2000
-  mov es, ax
-  mov bx, 0x4000 ; Offset 0x4000
-  ; Disk args
-  mov al, 2      ; 2 sectors
-  mov dl, 0x00   ; First floppy drive
-  mov ch, 0      ; Cylinder 0
-  mov dh, 0      ; Head 0
-  mov cl, 15     ; Sector 15
-
-  ; Call BIOS
-  mov ah, 0x02   ; Setup BIOS disk read sectors
-  int 0x13
-  jc .error
-  
-  ; Print loaded message
-  mov cx, 1024   ; 2 sectors = 1024 bytes
-  call printDriverLoaded
 
 .done:
   popa
@@ -146,17 +122,15 @@ loadDrivers:
 
 .error:
   popa
-  mov si, driverLoadingFailedMessage
+  mov si,loadingDriversFail
   call printString
   jmp hang
 
-
 ; ==== DATA SECTION ====
+; Messages
 kernelEntryMessage db "[*] Kernel loaded", STREND
 loadingDriversMessage db "[*] Loading drivers", STREND
-driverLoadingFailedMessage db "[!] Driver loading failed", STREND
-driverLoadedMessage db "  [+] Loaded: ",0
-newline db 0x0D, 0x0A, 0
+loadingDriversFail db "[!] Failed to load drivers", STREND
 
 ; Pad to 8 sectors
 times 4096 - ($ - $$) db 0
