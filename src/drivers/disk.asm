@@ -157,6 +157,83 @@ readFile:
 
 ; Write buffer to target filename in SI
 writeFile:
+  ; Check for filenames
+  ; Init file
+  cmp al, 0x01
+  je .writeInit
+
+  cmp al, 0x02
+  je .writeNote
+
+  cmp al, 0x03
+  je .writeProg1
+
+  cmp al, 0x04
+  je .writeProg2
+
+  cmp al, 0x05
+  je .writeProg3
+
+.writeInit:
+  ; Use BIOS int 0x13 to write data to file
+  ; Disk args
+  mov ch, 0  ; Cylinder 0
+  mov dh, 0  ; Head 0
+  mov cl, 14 ; Sector 14
+  mov dl, 0  ; Write to first floppy drive
+  mov al, 1  ; Write 1 sector 
+  ; Call BIOS write disk
+  mov ah, 0x03
+  int 0x13
+  jmp .done
+
+.writeNote:
+  ; Disk args
+  mov ch, 0  ; Cylinder 0
+  mov dh, 0  ; Head 0
+  mov cl, 15 ; Sector 15
+  mov dl, 0  ; Write to first floppy drive
+  mov al, 1  ; Write 1 sector 
+  ; Call BIOS write disk
+  mov ah, 0x03
+  int 0x13
+  jmp .done
+.hang:
+  jmp $
+.writeProg1:
+  mov ch, 0  ; Cylinder 0
+  mov dh, 0  ; Head 0
+  mov cl, 16 ; Sector 16
+  mov dl, 0  ; Write to first floppy drive
+  mov al, 1  ; Write 1 sector
+  ; Call BIOS to write disk
+  mov ah, 0x03
+  int 0x13
+  jmp .done
+
+.writeProg2:
+  mov ch, 0  ; Cylinder 0
+  mov dh, 0  ; Head 0
+  mov cl, 17 ; Sector 17
+  mov dl, 0  ; Write to first floppy drive
+  mov al, 1  ; Write 1 sector
+  ; Call BIOS to write disk
+  mov ah, 0x03
+  int 0x13
+  jmp .done
+
+.writeProg3:
+  mov ch, 0  ; Cylinder 0
+  mov dh, 0  ; Head 0
+  mov cl, 18 ; Sector 18
+  mov dl, 0  ; Read from first floppy drive
+  mov al, 1  ; Read 1 sector
+  ; Call BIOS to write disk
+  mov ah, 0x03
+  int 0x13
+  jmp .done
+
+.done:
   ret
 
 ; ==== DATA SECTION ====

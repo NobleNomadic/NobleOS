@@ -4,12 +4,12 @@
 ## To Do
 - [x] Bootloader
 - [ ] Kernel
-  - [ ] Load drivers
+  - [x] Load drivers
   - [ ] Load userspace
 - [ ] Drivers
-  - [ ] Screen driver
-  - [ ] Keyboard driver
-  - [ ] Disk driver
+  - [x] Screen driver
+  - [x] Keyboard driver
+  - [x] Disk driver
 - [ ] Userspace
   - [ ] Shell program
   - [ ] Core util programs

@@ -28,14 +28,12 @@ kernelEntry:
   mov ds, ax
   mov es, ax
 
-  mov ax, 0x3000
+  mov ax, 0x0000
   mov es, ax
-  mov bx, 0x0000
-  mov ah, 0x01
-  mov al, 0x01
+  mov bx, 0x7C00
+  mov ah, 0x02
+  mov al, 0x02
   int 0x83
-
-  jmp 0x3000:0x0000
 
 ; Backup hang
 hang:
