@@ -28,16 +28,29 @@ kernelEntry:
   mov ds, ax
   mov es, ax
 
-  mov ax, 0x0000
+  ; Load userspace init program
+  ; Setup memory target
+  mov ax, 0x3000 ; Segment 0x3000 for userspace segment
   mov es, ax
-  mov bx, 0x7C00
-  mov ah, 0x02
-  mov al, 0x02
+  mov bx, 0x0000 ; Offset 0x0000, start of userspace
+  ; Syscall args
+  mov al, 0x01   ; First file, init program
+  mov ah, 0x01   ; Sysclall 1, read file
+  ; Call disk services
   int 0x83
+
+  ; Give control to userspace, if code execution returns then kernel panic
+  call 0x3000:0x0000
 
 ; Backup hang
 hang:
-  jmp $
+  ; Print kernel panic message
+  mov si, kernelPanicNoInit
+  call printString
+
+  ; Hang system
+  cli   ; Dont allow interrupts
+  jmp $ ; Dont execute any code
 
 ; ==== UTILITY FUNCTIONS ====
 ; Print string in SI to screen
@@ -128,7 +141,9 @@ loadDrivers:
 ; Messages
 kernelEntryMessage db "[*] Kernel loaded", STREND
 loadingDriversMessage db "[*] Loading drivers", STREND
+
 loadingDriversFail db "[!] Failed to load drivers", STREND
+kernelPanicNoInit db "[!] Kernel panic: No working init program", STREND
 
 ; Pad to 8 sectors
 times 4096 - ($ - $$) db 0
