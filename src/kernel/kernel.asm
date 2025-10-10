@@ -44,6 +44,11 @@ kernelEntry:
 
 ; Backup hang
 hang:
+  ; Restore kernel segment
+  mov ax, 0x1000
+  mov ds, ax
+  mov es, ax
+
   ; Print kernel panic message
   mov si, kernelPanicNoInit
   call printString
