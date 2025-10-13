@@ -56,7 +56,10 @@ assemble src/drivers/disk.asm build/drivers/disk.bin
 
 # ---- INITIAL FILES ----
 assemble src/files/init.asm build/files/init.bin
+assemble src/files/note.asm build/files/note.bin
 assemble src/files/prog1.asm build/files/prog1.bin
+assemble src/files/prog2.asm build/files/prog2.bin
+assemble src/files/prog3.asm build/files/prog3.bin
 
 # ==== WRITE TO DISK ====
 writeToDisk build/boot/boot.bin 0
@@ -67,7 +70,10 @@ writeToDisk build/drivers/keyboard.bin 11
 writeToDisk build/drivers/disk.bin 12
 
 writeToDisk build/files/init.bin 13
+writeToDisk build/files/note.bin 14
 writeToDisk build/files/prog1.bin 15
+writeToDisk build/files/prog2.bin 16
+writeToDisk build/files/prog3.bin 17
 
 # Run if 'run' argument added
 if [ $1 = "run" ]; then

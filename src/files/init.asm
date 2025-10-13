@@ -20,6 +20,23 @@ entry:
   ; Get password and login
   call login
 
+  ; Load program 1, shell
+  mov si, loadingShellMessage
+  call printString
+
+  ; Print note file
+  mov ax, 0x3000 ; Segment 0x3000
+  mov es, ax
+  mov bx, 0x2000 ; Offset 0x2000
+  mov ah, 0x01   ; Disk syscall read file
+  mov al, 0x02   ; File 2, Note file
+  ; Call disk service
+  int 0x83
+
+  ; Print data
+  mov si, 0x2000 ; Target buffer
+  call printString
+
   ; Load program 1 into memory using disk driver
   mov ax, 0x3000 ; Segment 0x3000
   mov es, ax
@@ -113,6 +130,7 @@ login:
 ; Messages
 initEntryMessage db "[*] Noble init entered", STREND
 loginSuccessMessage db "[+] Login success", STREND
+loadingShellMessage db "[*] Loading shell", STREND
 loginFailMessage db "[-] Login failed: Incorrect password", STREND
 
 ; Password data

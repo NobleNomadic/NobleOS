@@ -1,15 +1,16 @@
 # NobleOS
-16 Bit DOS-like microkernel operating system.
+16 Bit DOS-like microkernel operating system 
 
 ## To Do
 - [x] Bootloader
-- [ ] Kernel
+- [x] Kernel
   - [x] Load drivers
-  - [ ] Load userspace
-- [ ] Drivers
+  - [x] Load userspace
+- [x] Drivers
   - [x] Screen driver
   - [x] Keyboard driver
   - [x] Disk driver
 - [ ] Userspace
+  - [x] Init program
   - [ ] Shell program
   - [ ] Core util programs
