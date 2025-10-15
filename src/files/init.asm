@@ -49,6 +49,9 @@ entry:
   ; Call loaded code
   call 0x3000:0x2000
 
+  mov si, shellExitMessage
+  call printString
+
   ; Return if reached this point
   retf
 
@@ -132,6 +135,7 @@ initEntryMessage db "[*] Noble init entered", STREND
 loginSuccessMessage db "[+] Login success", STREND
 loadingShellMessage db "[*] Loading shell", STREND
 loginFailMessage db "[-] Login failed: Incorrect password", STREND
+shellExitMessage db "[*] Shell exited, exiting init", STREND
 
 ; Password data
 passwordPrompt db "[>] Password for user: ", 0
