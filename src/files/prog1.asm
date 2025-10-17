@@ -3,6 +3,7 @@ ORG 0x2000 ; Most files load at 0ffset 0x2000
 BITS 16
 
 %define STREND 0x0D, 0x0A, 0x00
+%define NEWLIN 0x0D, 0x0A
 
 ; Entry
 programEntry:
@@ -75,25 +76,35 @@ shellLoop:
 
 ; Help command
 .help:
-  mov si, helpMessage
-  mov ah, 0x01
-  int 0x81
+  mov si, helpMessage  ; Message to print
+  mov ah, 0x01         ; Syscall 1 for print string
+  int 0x81             ; Call video services
   jmp .done
 
 ; Fetch command
 .fetch:
+  mov si, fetchMessage ; String to print
+  mov ah, 0x01         ; Syscall 1, print string
+  int 0x81             ; Call video services
   jmp .done
 
 .runProgram1:
+  call run1
   jmp .done
 
 .runProgram2:
+  call run2
   jmp .done
 
 .exit:
   retf
 
 .done:
+  ; Ensure segment is reset incase external code was called
+  mov ax, 0x3000
+  mov ds, ax
+  mov es, ax
+
   ; Continue loop
   jmp shellLoop
 
@@ -125,11 +136,56 @@ strcmp:
   stc  ; Equal, set the carry flag
   ret
 
+; Load program functions
+; Load program 2 into memory and call
+run1:
+  ; Memory args
+  mov ax, 0x4000 ; Segment 0x4000
+  mov es, ax
+  mov bx, 0x0000 ; Offset 0x0000
+  ; Syscall args
+  mov ah, 0x01   ; Syscall 1, read file
+  mov al, 0x04   ; File 4, program 2
+  int 0x83       ; Call disk services
+
+  ; Call loaded code
+  call 0x4000:0x0000
+
+  ret
+
+; Load program 3 into memory and call
+run2:
+  ; Memory args
+  mov ax, 0x4000 ; Segment 0x4000
+  mov es, ax
+  mov bx, 0x0000 ; Offset 0x0000
+  ; Syscall args
+  mov ah, 0x01   ; Syscall 1, read file
+  mov al, 0x05   ; File 5, program 3
+  int 0x83       ; Call disk services
+
+  ; Call loaded code
+  call 0x4000:0x0000
+  
+  ret
+
 ; ==== DATA SECTION ====
 ; Messages
 ; Shell prompt
 shellPrompt db "# ", 0
 helpMessage db "clear, help, fetch, run 1, run 2, exit", STREND
+
+; Fetch message
+fetchMessage db NEWLIN, \
+"|\ | _ |_ | _ /~\(~", NEWLIN, \
+"| \|(_)|_)|(/_\_/_)", NEWLIN, \
+"Version:     0.0.1", NEWLIN, \
+"Init system: Noble init", NEWLIN, \
+"Shell:       Noble shell", NEWLIN, \
+"Drivers:     ", NEWLIN, \
+"  Video services", NEWLIN, \
+"  Keyboard services", NEWLIN, \
+"  Disk services", NEWLIN, STREND
 
 ; Buffer for getting input, 32 chars + null
 inputBuffer times 33 db 0

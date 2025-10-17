@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Compile .img floppy disk image of all source code. Run in qemu if 'run' specified.
 set -e
 
@@ -76,6 +76,6 @@ writeToDisk build/files/prog2.bin 16
 writeToDisk build/files/prog3.bin 17
 
 # Run if 'run' argument added
-if [ $1 = "run" ]; then
+if [[ $1 == "run" ]]; then
   run
 fi
