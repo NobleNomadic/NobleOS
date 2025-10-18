@@ -37,6 +37,13 @@ entry:
   mov si, 0x2000 ; Target buffer
   call printString
 
+  ; Print newline
+  mov ah, 0x0E
+  mov al, 0x0D
+  int 0x10
+  mov al, 0x0A
+  int 0x10
+
   ; Load program 1 into memory using disk driver
   mov ax, 0x3000 ; Segment 0x3000
   mov es, ax

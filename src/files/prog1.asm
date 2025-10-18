@@ -179,13 +179,13 @@ helpMessage db "clear, help, fetch, run 1, run 2, exit", STREND
 fetchMessage db NEWLIN, \
 "|\ | _ |_ | _ /~\(~", NEWLIN, \
 "| \|(_)|_)|(/_\_/_)", NEWLIN, \
-"Version:     0.0.1", NEWLIN, \
+"Kernel:      0.0.1", NEWLIN, \
 "Init system: Noble init", NEWLIN, \
-"Shell:       Noble shell", NEWLIN, \
+"Userspace:   Noble utils", NEWLIN, \
 "Drivers:     ", NEWLIN, \
-"  Video services", NEWLIN, \
-"  Keyboard services", NEWLIN, \
-"  Disk services", NEWLIN, STREND
+"  Noble video", NEWLIN, \
+"  Noble keyboard", NEWLIN, \
+"  Noble disk/FS", NEWLIN, STREND
 
 ; Buffer for getting input, 32 chars + null
 inputBuffer times 33 db 0
